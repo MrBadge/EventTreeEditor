@@ -1,0 +1,9 @@
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\bin\Release\EventTreeEditor.exe.config
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\bin\Release\EventTreeEditor.exe
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\bin\Release\EventTreeEditor.pdb
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Release\EventTreeEditor.Form1.resources
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Release\EventTreeEditor.Properties.Resources.resources
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Release\EventTreeEditor.csproj.GenerateResource.Cache
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Release\EventTreeEditor.exe
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Release\EventTreeEditor.pdb
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Release\EventTreeEditor.csprojResolveAssemblyReference.cache

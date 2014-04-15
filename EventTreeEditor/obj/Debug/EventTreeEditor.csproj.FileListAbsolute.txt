@@ -1,0 +1,36 @@
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.exe.config
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.exe
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.pdb
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.csprojResolveAssemblyReference.cache
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.Properties.Resources.resources
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.csproj.GenerateResource.Cache
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.exe
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.pdb
+C:\Users\Anatoly Maltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.Form1.resources
+C:\Dropbox\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.exe.config
+C:\Dropbox\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.exe
+C:\Dropbox\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.pdb
+C:\Dropbox\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.exe
+C:\Dropbox\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.pdb
+C:\Dropbox\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.csprojResolveAssemblyReference.cache
+C:\Dropbox\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.Form1.resources
+C:\Dropbox\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.Properties.Resources.resources
+C:\Dropbox\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.csproj.GenerateResource.Cache
+C:\Users\anatolymaltsev\Desktop\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.exe.config
+C:\Users\anatolymaltsev\Desktop\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.exe
+C:\Users\anatolymaltsev\Desktop\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.pdb
+C:\Users\anatolymaltsev\Desktop\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.exe
+C:\Users\anatolymaltsev\Desktop\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.pdb
+C:\Users\anatolymaltsev\Desktop\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.csprojResolveAssemblyReference.cache
+C:\Users\anatolymaltsev\Desktop\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.Form1.resources
+C:\Users\anatolymaltsev\Desktop\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.Properties.Resources.resources
+C:\Users\anatolymaltsev\Desktop\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.csproj.GenerateResource.Cache
+C:\Users\anatolymaltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.exe.config
+C:\Users\anatolymaltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.exe
+C:\Users\anatolymaltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.pdb
+C:\Users\anatolymaltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.exe
+C:\Users\anatolymaltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.pdb
+C:\Users\anatolymaltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.csprojResolveAssemblyReference.cache
+C:\Users\anatolymaltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.Form1.resources
+C:\Users\anatolymaltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.Properties.Resources.resources
+C:\Users\anatolymaltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.csproj.GenerateResource.Cache
