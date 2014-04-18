@@ -34,3 +34,14 @@ C:\Users\anatolymaltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug
 C:\Users\anatolymaltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.Form1.resources
 C:\Users\anatolymaltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.Properties.Resources.resources
 C:\Users\anatolymaltsev\Desktop\GitHub\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.csproj.GenerateResource.Cache
+\\psf\Dropbox\MEPhI\YIR\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.exe.config
+\\psf\Dropbox\MEPhI\YIR\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.exe
+\\psf\Dropbox\MEPhI\YIR\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.pdb
+\\psf\Dropbox\MEPhI\YIR\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.exe
+\\psf\Dropbox\MEPhI\YIR\EventTreeEditor\EventTreeEditor\bin\Debug\EventTreeEditor.pdb
+\\psf\Dropbox\MEPhI\YIR\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.csprojResolveAssemblyReference.cache
+\\psf\Dropbox\MEPhI\YIR\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.Form1.resources
+\\psf\Dropbox\MEPhI\YIR\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.Properties.Resources.resources
+\\psf\Dropbox\MEPhI\YIR\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.csproj.GenerateResource.Cache
+\\psf\Dropbox\MEPhI\YIR\EventTreeEditor\EventTreeEditor\bin\Debug\WeifenLuo.WinFormsUI.Docking.dll
+\\psf\Dropbox\MEPhI\YIR\EventTreeEditor\EventTreeEditor\obj\Debug\EventTreeEditor.Exsercises.resources

@@ -57,6 +57,7 @@ namespace EventTreeEditor
         {
             if (graph == null || field == null) return;
             var root = graph.Find(item => item.Level == 0);
+            if (root == null) return;
             int levels = root.Height(root) + 1;
             int level_Y = field.Height/levels;
             root.Y = level_Y / 2;

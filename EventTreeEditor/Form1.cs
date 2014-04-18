@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Threading;
@@ -12,31 +13,34 @@ namespace EventTreeEditor
     {
         public const int DefPointRad = 2;
         public const int DefCirclRad = 20;
-        public const int DefDiagRad = 20;
+        //public const int DefDiagRad = 20;
         public const int DefLineWidth = 1;
-        public static int CurSecCount;
+        //public static int CurSecCount;
         public static int Glob_Ind_Tmp;
-        public static int CurFigure = 0;
-        public static int CurTool = 0;
+        //public static int CurFigure = 0;
+        //public static int CurTool = 0;
         public static int Glob_X_Tmp;
         public static int Glob_Y_tmp;
-        public static double Alpha_tmp;
+        //public static double Alpha_tmp;
         public static Point CurPlace = new Point(-1, -1);
-        public static Color CurColor;
+        //public static Color CurColor;
         public static bool IsDrawing = false;
         public static bool IsMoving = false;
-        public static bool IsScaling = false;
+        //public static bool IsScaling = false;
         public static bool IsConnecting = false;
         public static Bitmap bmp_tmp;
         public static int StartNode;
         public static List<GraphNode> ObjArr = new List<GraphNode>();
+        public static DataSet dataSet;
+        public static int ExerGroupID = -1;
+        public static int CategorieID = -1;
 
         public Form1()
         {
             InitializeComponent();
             //CurFigure = 0;
             //CurTool = 0;
-            CurColor = mainField.BackColor;
+            //CurColor = mainField.BackColor;
             Glob_Ind_Tmp = -1;
             StartNode = -1;
             //ObjArr.Capacity = 0;
@@ -321,7 +325,7 @@ namespace EventTreeEditor
             IsDrawing = false;
             IsMoving = false;
             IsConnecting = false;
-            IsScaling = false;
+            //IsScaling = false;
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -332,10 +336,15 @@ namespace EventTreeEditor
             //tree_panel.Width = Width - main_panel.Width - 27;
             //mainField.Width = main_panel.Width - 5;
             //mainField.Height = main_panel.Height - 10;
-            splitContainer1.Width = Width;
-            splitContainer1.Top = toolStrip1.Height + 2;
-            splitContainer1.Height = Height - toolStrip1.Height - 45;
-            splitContainer1.SplitterDistance = Convert.ToInt32(Width*0.8);
+            splitContainer1.Width = Width - 16;
+            splitContainer1.Top = toolStrip1.Height;
+            splitContainer1.Height = Height - toolStrip1.Height - 40;
+            treeView2.Top = ExerciseGroupsBox.Top + ExerciseGroupsBox.Height + 2;
+            treeView2.Left = ExerciseGroupsBox.Left;
+            treeView2.Width = splitContainer2.Width;
+            treeView2.Height = splitContainer2.Height - 44;
+            //splitContainer1.SplitterDistance = Convert.ToInt32(Width*0.8);
+
             //if (mainField.Image != null)
             //mainField.Image = ResizeImage(mainField.Image, Width, Height);
         }
@@ -351,6 +360,16 @@ namespace EventTreeEditor
         private void Form1_Load(object sender, EventArgs e)
         {
             Form1_Resize(sender, e);
+            dataSet = SQLManager.FillDataSet();
+            foreach (DataRow row in dataSet.Tables["Categories"].Rows)
+            {
+                //Console.Write(row);
+                CategoriesBox.Items.Add(row["ID"] + ". " + row["Name"]);
+            }
+            CategoriesBox.SelectedItem = CategoriesBox.Items[0];
+            //CategorieID = Convert.ToInt16(CategoriesBox.SelectedItem.ToString().Split('.')[0]);
+            //CategorieID = 
+            //CategorieID = dataSet.Tables["Categories"].
             //mainField.ContextMenuStrip = cms;
         }
 
@@ -374,14 +393,6 @@ namespace EventTreeEditor
         }
 
         //private Tree<> 
-
-        private void PopulateTreeView()
-        {
-        }
-
-        private void splitContainer1_Panel1_Paint(object sender, PaintEventArgs e)
-        {
-        }
 
         private void cms_Opening(object sender, CancelEventArgs e)
         {
@@ -408,7 +419,34 @@ namespace EventTreeEditor
 
         private void toolStripButton2_Click(object sender, EventArgs e)
         {
-            SQLManager.ConnectSQL();
+            //var exrs = new Exsercises();
+            //exrs.Show();
+            //SQLManager.ConnectSQL();
+        }
+
+        private void ExerciseGroupsBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //TreeView tw = new TreeView();
+            ExerGroupID = Convert.ToInt16(ExerciseGroupsBox.SelectedItem.ToString().Split('.')[0]);
+            treeView2.Nodes.Add(SQLManager.PopulateTreeNode(dataSet, ExerGroupID, CategorieID));
+            treeView2.ExpandAll();
+            //treeView2.Nodes.Add("начало");
+            //treeView2.Nodes.Add("конец");
+        }
+
+        private void ExerciseGroupsBox_DropDown(object sender, EventArgs e)
+        {
+            ExerciseGroupsBox.Items.Clear();
+            foreach (DataRow row in dataSet.Tables["ExerciseGroups"].Rows)
+            {
+                ExerciseGroupsBox.Items.Add(row["ID"] + ". " + row["Description"]);
+            }
+            //ExerciseGroupsBox.SelectedItem = ExerciseGroupsBox.Items
+        }
+
+        private void CategoriesBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            CategorieID = Convert.ToInt16(CategoriesBox.SelectedItem.ToString().Split('.')[0]);
         }
     }
 }
