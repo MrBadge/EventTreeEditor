@@ -336,12 +336,17 @@ namespace EventTreeEditor
             //tree_panel.Width = Width - main_panel.Width - 27;
             //mainField.Width = main_panel.Width - 5;
             //mainField.Height = main_panel.Height - 10;
-            splitContainer1.Width = Width - 16;
+            splitContainer1.Width = Width - 19;
             splitContainer1.Top = toolStrip1.Height;
             splitContainer1.Height = Height - toolStrip1.Height - 40;
             treeView2.Top = ExerciseGroupsBox.Top + ExerciseGroupsBox.Height + 2;
             treeView2.Left = ExerciseGroupsBox.Left;
-            treeView2.Width = splitContainer2.Width;
+            splitContainer2.SplitterDistance = Convert.ToInt32(Width*0.25);
+            splitContainer3.SplitterDistance = Convert.ToInt32(Height*0.5);
+            //mainField.Top = main_panel.Top;
+            //mainField.Left = main_panel.Left;
+            
+            //treeView2.Width = splitContainer2.Width;
             treeView2.Height = splitContainer2.Height - 44;
             //splitContainer1.SplitterDistance = Convert.ToInt32(Width*0.8);
 
@@ -427,9 +432,12 @@ namespace EventTreeEditor
         private void ExerciseGroupsBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             //TreeView tw = new TreeView();
-            ExerGroupID = Convert.ToInt16(ExerciseGroupsBox.SelectedItem.ToString().Split('.')[0]);
-            treeView2.Nodes.Add(SQLManager.PopulateTreeNode(dataSet, ExerGroupID, CategorieID));
-            treeView2.ExpandAll();
+            ExerGroupID = ExerciseGroupsBox.SelectedItem != null ? Convert.ToInt16(ExerciseGroupsBox.SelectedItem.ToString().Split('.')[0]) : -1;
+            if (ExerGroupID != -1 && CategorieID != -1)
+            {
+                treeView2.Nodes.Add(SQLManager.PopulateTreeNodeMain(dataSet, ExerGroupID, CategorieID));
+                treeView2.ExpandAll();
+            }
             //treeView2.Nodes.Add("начало");
             //treeView2.Nodes.Add("конец");
         }
@@ -447,6 +455,31 @@ namespace EventTreeEditor
         private void CategoriesBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             CategorieID = Convert.ToInt16(CategoriesBox.SelectedItem.ToString().Split('.')[0]);
+            treeView2.Nodes.Clear();
+            ExerciseGroupsBox.SelectedIndex = -1;
+        }
+
+        private void panel1_Resize(object sender, EventArgs e)
+        {
+            treeView2.Width = panel1.Width;
+        }
+
+        private void treeView2_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (e.Node.Level != 2 && (e.Node.Level != 1 || e.Node.GetNodeCount(false) != 0)) return;
+            treeView1.Nodes.Clear();
+            try
+            {
+                var tmp = SQLManager.PopulateTreeNode(dataSet, Convert.ToInt16(e.Node.Text.Split('.')[0]));
+                treeView1.Nodes.Add(tmp);
+                treeView1.ExpandAll();
+            }
+            catch(Exception ex)
+            {
+                //MessageBox.Show(ex.Message);
+            }
+            //Utils.NormalizeGraph(ObjArr, mainField);
+            //MessageBox.Show(e.Node.Level.ToString());
         }
     }
 }
