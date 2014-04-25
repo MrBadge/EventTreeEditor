@@ -11,10 +11,10 @@ namespace EventTreeEditor
 {
     public partial class Form1 : Form
     {
-        public const int DefPointRad = 2;
-        public const int DefCirclRad = 20;
+        //public const int DefPointRad = 2;
+        //public const int DefCirclRad = 10;
         //public const int DefDiagRad = 20;
-        public const int DefLineWidth = 1;
+        //public const int DefLineWidth = 1;
         //public static int CurSecCount;
         public static int Glob_Ind_Tmp;
         //public static int CurFigure = 0;
@@ -49,15 +49,32 @@ namespace EventTreeEditor
             mainField.AutoSize = true;
 
             mainField.MouseWheel += Zoom;
+            DoubleBuffered = true;
         }
 
         public void Zoom(object sender, MouseEventArgs e) //MAKE THIS WORK
         {
-            double zoomFactor = e.Delta > 0 ? 1.1 : 0.9;
+            double zoomFactor = e.Delta > 0 ? 0.1 : -0.1;
             //Size newSize = new Size((int)(mainField.Image.Width * zoomFactor), (int)(mainField.Image.Height * zoomFactor));
             //Bitmap bmp = new Bitmap(mainField.Image, newSize);
             //mainField.Image = bmp;
-            var brush = new SolidBrush(Color.Black);
+            var tmp = TreeNode.zoomFactor + zoomFactor >= 0.5
+                ? TreeNode.zoomFactor + zoomFactor
+                : TreeNode.zoomFactor;
+            if (tmp > TreeNode.MaxZoomFactor)
+                TreeNode.zoomFactor = TreeNode.MaxZoomFactor;
+            else
+                TreeNode.zoomFactor = tmp;
+            //var tmp = Convert.ToInt32(TreeNode.DefCirclRad*zoomFactor);
+            //TreeNode.DefCirclRad = tmp <= TreeNode.DefPointRad ? TreeNode.DefPointRad + 5 : tmp;
+            ReDarawScene(mainField);
+            /*var img = mainField.Image;
+            Bitmap bm = new Bitmap(img, Convert.ToInt32(img.Width * zoomFactor), Convert.ToInt32(img.Height * zoomFactor));
+            Graphics grap = Graphics.FromImage(bm);
+            grap.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            mainField.Image = bm;*/
+
+            /*var brush = new SolidBrush(Color.Black);
             Image image = mainField.Image;
 
             var bmp = new Bitmap(mainField.Image.Width, mainField.Image.Height);
@@ -73,12 +90,12 @@ namespace EventTreeEditor
             graph.FillRectangle(brush, new RectangleF(0, 0, mainField.Width, mainField.Height));
             graph.DrawImage(image,
                 new Rectangle((mainField.Width - scaleWidth)/2, (mainField.Height - scaleHeight)/2, scaleWidth,
-                    scaleHeight));
+                    scaleHeight));*/
         }
 
         public static bool IsOutOfBounds(PictureBox img, int R, Point p)
         {
-            int i = 0;
+            /*int i = 0;
             while (i < 20*Math.PI)
             {
                 double X = R*Math.Cos(i) + p.X;
@@ -86,7 +103,7 @@ namespace EventTreeEditor
                 if ((X < 0) || (X > img.Width) || (Y < 0) || (Y > img.Height - 10))
                     return true;
                 i += 1;
-            }
+            }*/
             return false;
         }
 
@@ -134,7 +151,7 @@ namespace EventTreeEditor
             {
                 ObjArr[i].Draw(g);
             }
-            var Pen = new Pen(Color.Black, DefLineWidth);
+            var Pen = new Pen(Color.Black, GraphNode.DefLineWidth);
             Pen.EndCap = LineCap.ArrowAnchor;
             var from = new Point(ObjArr[startNode].X, ObjArr[startNode].Y);
             Point to = GetCurPoint();
@@ -158,6 +175,7 @@ namespace EventTreeEditor
         public bool MouseInObj(Point p, int i)
         {
             var p_tmp = new Point(ObjArr[i].X, ObjArr[i].Y);
+            //var p_cur = new Point(Convert.ToInt32(p.X*TreeNode.zoomFactor), Convert.ToInt32(p.Y*TreeNode.zoomFactor));
             return Math.Sqrt(Math.Pow((p.X - p_tmp.X), 2) + Math.Pow((p.Y - p_tmp.Y), 2)) <= ObjArr[i].Radius;
         }
 
@@ -181,8 +199,8 @@ namespace EventTreeEditor
 
         private void mainField_MouseDown(object sender, MouseEventArgs e)
         {
-            CurPlace = new Point(e.X, e.Y);
-            var p = new Point(e.X, e.Y);
+            //CurPlace = new Point(Convert.ToInt32(e.X), Convert.ToInt32(e.Y));
+            var p = new Point(Convert.ToInt32(e.X), Convert.ToInt32(e.Y));
             Glob_Ind_Tmp = GetObjIndex(p);
             if (e.Button == MouseButtons.Right && Glob_Ind_Tmp != -1)
             {
@@ -211,7 +229,7 @@ namespace EventTreeEditor
             {
                 Glob_Ind_Tmp = ObjArr.Count;
                 ObjArr.Add(new GraphNode(null));
-                ObjArr[Glob_Ind_Tmp].ChangeParams(p.X, p.Y, /*CurColor,*/ DefCirclRad);
+                ObjArr[Glob_Ind_Tmp].ChangeParams(p.X, p.Y, TreeNode.DefCirclRad /*CurColor,*/);
                 ReDarawScene(mainField);
             }
         }
@@ -300,7 +318,7 @@ namespace EventTreeEditor
             if (e.Button != MouseButtons.Left) return;
             if ((Glob_Ind_Tmp != -1) && (ObjArr.Count > 0))
             {
-                if (ObjArr[Glob_Ind_Tmp].Radius <= DefPointRad + 2)
+                if (ObjArr[Glob_Ind_Tmp].Radius <= GraphNode.DefPointRad + 2)
                 {
                     for (int i = 0; i < ObjArr.Count - 1; i++)
                     {
@@ -390,6 +408,7 @@ namespace EventTreeEditor
 
         private void main_panel_MouseEnter(object sender, EventArgs e)
         {
+            mainField.Focus();
         }
 
         private void mainField_MouseEnter(object sender, EventArgs e)
@@ -480,6 +499,22 @@ namespace EventTreeEditor
             }
             //Utils.NormalizeGraph(ObjArr, mainField);
             //MessageBox.Show(e.Node.Level.ToString());
+        }
+
+        private void treeView2_MouseEnter(object sender, EventArgs e)
+        {
+            treeView2.Focus();
+        }
+
+        private void treeView1_MouseEnter(object sender, EventArgs e)
+        {
+            treeView1.Focus();
+        }
+
+        private void splitContainer2_Resize(object sender, EventArgs e)
+        {
+            ReDarawScene(mainField);
+            Utils.NormalizeGraph(ObjArr, mainField);
         }
     }
 }

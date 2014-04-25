@@ -11,6 +11,13 @@ namespace EventTreeEditor
 {
     public class TreeNode
     {
+        public static int DefPointRad = 2;
+        public static int DefCirclRad = 20;
+        //public const int DefDiagRad = 20;
+        public static int DefLineWidth = 1;
+        public static double zoomFactor = 1;
+        public static double MaxZoomFactor = 3;
+
         internal class Type
         {
             public const int Root = 0;
@@ -38,12 +45,19 @@ namespace EventTreeEditor
     public class GraphNode : TreeNode
     {
         public Color color { get; set; }
-        
-        public int X { get; set; }
-        
-        public int Y { get; set; }
 
-        public int Radius { get; set; }
+        private int _X;
+        private int _Y;
+        private int _Radius;
+        public int X { get { return Convert.ToInt32(_X * zoomFactor); }
+            set { _X = Convert.ToInt32(value / zoomFactor); } 
+        }
+
+        public int Y { get { return Convert.ToInt32(_Y * zoomFactor); }
+            set { _Y = Convert.ToInt32(value / zoomFactor); }
+        }
+
+        public int Radius { get { return Convert.ToInt32(_Radius * zoomFactor); } set { _Radius = value; } }
 
         public List<GraphNode> childNodes;
         public GraphNode Parent { get; set; }
@@ -114,7 +128,7 @@ namespace EventTreeEditor
 
         private void DrawConnections(Graphics field)
         {
-            var Pen = new Pen(Color.Black, Form1.DefLineWidth);
+            var Pen = new Pen(Color.Black, DefLineWidth);
             Pen.EndCap = LineCap.ArrowAnchor;
             var from = new Point(X, Y);
             foreach (var node in childNodes)
@@ -143,8 +157,10 @@ namespace EventTreeEditor
         {
             DrawConnections(field);
             var Brush = new SolidBrush(color);
-            var Pen = new Pen(Color.Black, Form1.DefLineWidth);
-            var p = new Point(X, Y);
+            var Pen = new Pen(Color.Black, DefLineWidth);
+            var p = new Point(X, Y);//(Convert.ToInt32(X*zoomFactor), Convert.ToInt32(Y*zoomFactor));
+            //var Rad = DefCirclRad;//Convert.ToInt32(DefCirclRad*zoomFactor);
+            //Radius = Rad;
             field.FillEllipse(Brush, p.X - Radius, p.Y - Radius, 2 * Radius, 2 * Radius);
             field.DrawEllipse(Pen, p.X - Radius, p.Y - Radius, 2 * Radius, 2 * Radius);
             Pen.Dispose();
