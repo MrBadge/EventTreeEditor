@@ -218,7 +218,7 @@ namespace EventTreeEditor
                 (from row in ds.Tables["ConditionsComplex"].AsEnumerable()
                  select row["Condition_ID"]).ToList();
             var root = new System.Windows.Forms.TreeNode(GetCondName(ds, CondID), GetChilds(ds, CondID).ToArray());
-            var CurNode = root;
+            //var CurNode = root;
             var allexpanded = false;
             var CurID = -1;
             //var test = new TreeView();

@@ -27,6 +27,7 @@ namespace EventTreeEditor
 
         public string Data1 { get; set; }
         public GraphNode Data2 { get; set; }
+        public string SubTreeName { get; set; }
 
         public TreeNode(string data1, GraphNode data2)
         {
@@ -59,12 +60,14 @@ namespace EventTreeEditor
 
         public int Radius { get { return Convert.ToInt32(_Radius * zoomFactor); } set { _Radius = value; } }
 
-        public List<GraphNode> childNodes;
+        //public List<GraphNode> childNodes;
+        public GraphNode Left { get; set; }
+        public GraphNode Right { get; set; }
         public GraphNode Parent { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public GraphNode Left
+        /*public GraphNode Left
         {
             get { return childNodes.Count > 0 ? childNodes[0] : null; }
             set { childNodes[0] = value; }
@@ -74,11 +77,11 @@ namespace EventTreeEditor
         {
             get { return childNodes.Count > 1 ? childNodes[1] : null; }
             set { childNodes[1] = value; }
-        }
+        }*/
 
         public GraphNode(GraphNode parent)
         {
-            childNodes = new List<GraphNode>();
+            //childNodes = new List<GraphNode>();
             Parent = parent;
         }
 
@@ -131,8 +134,9 @@ namespace EventTreeEditor
             var Pen = new Pen(Color.Black, DefLineWidth);
             Pen.EndCap = LineCap.ArrowAnchor;
             var from = new Point(X, Y);
-            foreach (var node in childNodes)
+            foreach (var node in new List<GraphNode> {Left, Right})
             {
+                if (node == null) continue;
                 var to = new Point(node.X, node.Y);
                 var lambda = Radius/(Utils.LineLength(from, to) - Radius);
                 var X_from = Math.Round((from.X + lambda*node.X)/(1 + lambda));

@@ -26,6 +26,7 @@ namespace EventTreeEditor
         //public static Color CurColor;
         public static bool IsDrawing = false;
         public static bool IsMoving = false;
+        public static bool IsDragging = false;
         //public static bool IsScaling = false;
         public static bool IsConnecting = false;
         public static Bitmap bmp_tmp;
@@ -50,6 +51,7 @@ namespace EventTreeEditor
 
             mainField.MouseWheel += Zoom;
             DoubleBuffered = true;
+            KeyPreview = true;
         }
 
         public void Zoom(object sender, MouseEventArgs e) //MAKE THIS WORK
@@ -58,7 +60,7 @@ namespace EventTreeEditor
             //Size newSize = new Size((int)(mainField.Image.Width * zoomFactor), (int)(mainField.Image.Height * zoomFactor));
             //Bitmap bmp = new Bitmap(mainField.Image, newSize);
             //mainField.Image = bmp;
-            var tmp = TreeNode.zoomFactor + zoomFactor >= 0.5
+            var tmp = TreeNode.zoomFactor + zoomFactor >= 0.1
                 ? TreeNode.zoomFactor + zoomFactor
                 : TreeNode.zoomFactor;
             if (tmp > TreeNode.MaxZoomFactor)
@@ -147,12 +149,11 @@ namespace EventTreeEditor
             bmp_tmp = new Bitmap(img.Width, img.Height);
             Graphics g = Graphics.FromImage(bmp_tmp);
             //var myBrush = new SolidBrush(color);
-            for (int i = 0; i < ObjArr.Count; i++)
+            foreach (GraphNode node in ObjArr)
             {
-                ObjArr[i].Draw(g);
+                node.Draw(g);
             }
-            var Pen = new Pen(Color.Black, GraphNode.DefLineWidth);
-            Pen.EndCap = LineCap.ArrowAnchor;
+            var Pen = new Pen(Color.Black, GraphNode.DefLineWidth) {EndCap = LineCap.ArrowAnchor};
             var from = new Point(ObjArr[startNode].X, ObjArr[startNode].Y);
             Point to = GetCurPoint();
             double lambda = ObjArr[startNode].Radius/(Utils.LineLength(from, to) - ObjArr[startNode].Radius);
@@ -200,11 +201,19 @@ namespace EventTreeEditor
         private void mainField_MouseDown(object sender, MouseEventArgs e)
         {
             //CurPlace = new Point(Convert.ToInt32(e.X), Convert.ToInt32(e.Y));
+            if (IsDragging) return;
             var p = new Point(Convert.ToInt32(e.X), Convert.ToInt32(e.Y));
             Glob_Ind_Tmp = GetObjIndex(p);
             if (e.Button == MouseButtons.Right && Glob_Ind_Tmp != -1)
             {
                 cms.Show(mainField, p);
+            }
+            if (e.Button == MouseButtons.Middle)
+            {
+                IsDragging = true;
+                Cursor = Cursors.SizeAll;
+                Glob_X_Tmp = p.X;
+                Glob_Y_tmp = p.Y;
             }
             if (e.Button != MouseButtons.Left) return;
             //Bmp_tmp = mainField.Image;
@@ -213,7 +222,8 @@ namespace EventTreeEditor
                 IsScaling = true;
             }
             else*/
-            if (Glob_Ind_Tmp != -1 && ModifierKeys.HasFlag(Keys.Control) && ObjArr[Glob_Ind_Tmp].childNodes.Count < 2)
+            if (Glob_Ind_Tmp != -1 && ModifierKeys.HasFlag(Keys.Control) && (ObjArr[Glob_Ind_Tmp].Left == null || 
+                ObjArr[Glob_Ind_Tmp].Right == null))
             {
                 IsConnecting = true;
                 StartNode = Glob_Ind_Tmp;
@@ -237,13 +247,24 @@ namespace EventTreeEditor
         private void mainField_MouseMove(object sender, MouseEventArgs e)
         {
             CurPlace = new Point(e.X, e.Y);
-            if (IsDrawing)
+            if (IsDragging)
+            {
+                foreach (var node in ObjArr)
+                {
+                    node.Move(node.X + Convert.ToInt32((CurPlace.X - Glob_X_Tmp)*TreeNode.zoomFactor),
+                        node.Y + Convert.ToInt32((CurPlace.Y - Glob_Y_tmp)*TreeNode.zoomFactor));
+                }
+                Glob_X_Tmp = CurPlace.X;
+                Glob_Y_tmp = CurPlace.Y;
+                ReDarawScene(mainField);
+            }
+            else if (IsDrawing)
             {
                 try
                 {
                     //mainField.Image = Bmp_tmp;
                     var p = new Point(ObjArr[ObjArr.Count - 1].X, ObjArr[ObjArr.Count - 1].Y);
-                    int Rtmp = ObjArr[ObjArr.Count - 1].Radius;
+                    //int Rtmp = ObjArr[ObjArr.Count - 1].Radius;
                     //ObjArr[ObjArr.Count - 1].Scale(GetDist(p, new Point(e.X, e.Y)));
                     if (IsOutOfBounds(mainField, ObjArr[ObjArr.Count - 1].Radius, p))
                     {
@@ -305,18 +326,17 @@ namespace EventTreeEditor
                                     MessageBoxDefaultButton.Button1);
                     //throw;
                 }
-            }
-            else*/
-            if (IsConnecting)
+            }*/
+            else if (IsConnecting)
             {
                 DrawConnection(mainField, StartNode);
-            }
+            }    
         }
 
         private void mainField_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button != MouseButtons.Left) return;
-            if ((Glob_Ind_Tmp != -1) && (ObjArr.Count > 0))
+            if (e.Button != MouseButtons.Left && e.Button != MouseButtons.Middle) return;
+            /*if ((Glob_Ind_Tmp != -1) && (ObjArr.Count > 0))
             {
                 if (ObjArr[Glob_Ind_Tmp].Radius <= GraphNode.DefPointRad + 2)
                 {
@@ -330,12 +350,16 @@ namespace EventTreeEditor
                     ObjArr.RemoveAt(Glob_Ind_Tmp);
                     ReDarawScene(mainField);
                 }
-            }
+            }*/
             int objTmp = GetObjIndex(e.Location);
-            if (StartNode != -1 && objTmp != -1 && objTmp != StartNode &&
-                !ObjArr[StartNode].childNodes.Contains(ObjArr[objTmp]) && ObjArr[objTmp].Parent == null)
+            if (StartNode != -1 && objTmp != -1 && objTmp != StartNode && 
+                ObjArr[objTmp].Parent == null && !IsParent(objTmp, StartNode))
             {
-                ObjArr[StartNode].childNodes.Add(ObjArr[objTmp]);
+                if (ObjArr[StartNode].Left == null)
+                    ObjArr[StartNode].Left = ObjArr[objTmp];
+                else
+                    ObjArr[StartNode].Right = ObjArr[objTmp];
+                //ObjArr[StartNode].childNodes.Add(ObjArr[objTmp]);
                 ObjArr[objTmp].Parent = ObjArr[StartNode];
             }
             StartNode = -1;
@@ -343,7 +367,21 @@ namespace EventTreeEditor
             IsDrawing = false;
             IsMoving = false;
             IsConnecting = false;
+            IsDragging = false;
+            Cursor = Cursors.Default;
             //IsScaling = false;
+        }
+
+        private bool IsParent(int start, int end)
+        {
+            var tmp = ObjArr[end].Parent;
+            while (tmp != null)
+            {
+                if (tmp.Equals(ObjArr[start]))
+                    return true;
+                tmp = tmp.Parent;
+            }
+            return false;
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -431,18 +469,31 @@ namespace EventTreeEditor
         {
             if (ObjArr[Glob_Ind_Tmp].Parent != null)
             {
-                ObjArr[Glob_Ind_Tmp].Parent.childNodes.RemoveAll(item => item.Equals(ObjArr[Glob_Ind_Tmp]));
+                if (ObjArr[Glob_Ind_Tmp].Parent.Left != null &&
+                    ObjArr[Glob_Ind_Tmp].Parent.Left.Equals(ObjArr[Glob_Ind_Tmp]))
+                    ObjArr[Glob_Ind_Tmp].Parent.Left = null;
+                else
+                    ObjArr[Glob_Ind_Tmp].Parent.Right = null;
+                //ObjArr[Glob_Ind_Tmp].Parent
+                //ObjArr[Glob_Ind_Tmp].Parent.childNodes.RemoveAll(item => item.Equals(ObjArr[Glob_Ind_Tmp]));
             }
-            foreach (GraphNode node in ObjArr[Glob_Ind_Tmp].childNodes)
+            if (ObjArr[Glob_Ind_Tmp].Left != null)
+                ObjArr[Glob_Ind_Tmp].Left.Parent = null;
+            if (ObjArr[Glob_Ind_Tmp].Right != null)
+                ObjArr[Glob_Ind_Tmp].Right.Parent = null;
+            /*foreach (GraphNode node in ObjArr[Glob_Ind_Tmp].childNodes)
             {
                 node.Parent = null;
-            }
+            }*/
             ObjArr.RemoveAt(Glob_Ind_Tmp);
             ReDarawScene(mainField);
         }
 
         private void toolStripButton2_Click(object sender, EventArgs e)
         {
+            //Cursor.Current = Cursors.Hand;
+            this.Cursor = Cursors.Hand;
+            IsDragging = true;
             //var exrs = new Exsercises();
             //exrs.Show();
             //SQLManager.ConnectSQL();
@@ -492,6 +543,15 @@ namespace EventTreeEditor
                 var tmp = SQLManager.PopulateTreeNode(dataSet, Convert.ToInt16(e.Node.Text.Split('.')[0]));
                 treeView1.Nodes.Add(tmp);
                 treeView1.ExpandAll();
+                ObjArr.Clear();
+                var tmp_nodes = Utils.TreeToObjArr(tmp);
+                if (tmp_nodes != null)
+                {
+                    //ObjArr.Clear();
+                    ObjArr = tmp_nodes;
+                }
+                Utils.NormalizeGraph(ObjArr, mainField);
+                ReDarawScene(mainField);
             }
             catch(Exception ex)
             {
@@ -515,6 +575,10 @@ namespace EventTreeEditor
         {
             ReDarawScene(mainField);
             Utils.NormalizeGraph(ObjArr, mainField);
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
         }
     }
 }
