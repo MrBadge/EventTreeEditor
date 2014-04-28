@@ -114,7 +114,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer3);
             this.splitContainer1.Size = new System.Drawing.Size(1617, 807);
-            this.splitContainer1.SplitterDistance = 1375;
+            this.splitContainer1.SplitterDistance = 1317;
             this.splitContainer1.TabIndex = 7;
             // 
             // main_panel
@@ -125,10 +125,9 @@
             this.main_panel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.main_panel.Location = new System.Drawing.Point(0, 0);
             this.main_panel.Name = "main_panel";
-            this.main_panel.Size = new System.Drawing.Size(1375, 807);
+            this.main_panel.Size = new System.Drawing.Size(1317, 807);
             this.main_panel.TabIndex = 6;
             this.main_panel.MouseEnter += new System.EventHandler(this.main_panel_MouseEnter);
-            this.main_panel.Resize += new System.EventHandler(this.panel2_Resize);
             // 
             // splitContainer2
             // 
@@ -143,8 +142,8 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.mainField);
-            this.splitContainer2.Size = new System.Drawing.Size(1371, 803);
-            this.splitContainer2.SplitterDistance = 456;
+            this.splitContainer2.Size = new System.Drawing.Size(1313, 803);
+            this.splitContainer2.SplitterDistance = 436;
             this.splitContainer2.TabIndex = 4;
             this.splitContainer2.Resize += new System.EventHandler(this.splitContainer2_Resize);
             // 
@@ -156,7 +155,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(456, 803);
+            this.panel1.Size = new System.Drawing.Size(436, 803);
             this.panel1.TabIndex = 0;
             this.panel1.Resize += new System.EventHandler(this.panel1_Resize);
             // 
@@ -167,7 +166,7 @@
             this.ExerciseGroupsBox.FormattingEnabled = true;
             this.ExerciseGroupsBox.Location = new System.Drawing.Point(0, 33);
             this.ExerciseGroupsBox.Name = "ExerciseGroupsBox";
-            this.ExerciseGroupsBox.Size = new System.Drawing.Size(456, 33);
+            this.ExerciseGroupsBox.Size = new System.Drawing.Size(436, 33);
             this.ExerciseGroupsBox.TabIndex = 2;
             this.ExerciseGroupsBox.DropDown += new System.EventHandler(this.ExerciseGroupsBox_DropDown);
             this.ExerciseGroupsBox.SelectedIndexChanged += new System.EventHandler(this.ExerciseGroupsBox_SelectedIndexChanged);
@@ -179,7 +178,7 @@
             this.CategoriesBox.FormattingEnabled = true;
             this.CategoriesBox.Location = new System.Drawing.Point(0, 0);
             this.CategoriesBox.Name = "CategoriesBox";
-            this.CategoriesBox.Size = new System.Drawing.Size(456, 33);
+            this.CategoriesBox.Size = new System.Drawing.Size(436, 33);
             this.CategoriesBox.TabIndex = 1;
             this.CategoriesBox.SelectedIndexChanged += new System.EventHandler(this.CategoriesBox_SelectedIndexChanged);
             // 
@@ -200,7 +199,7 @@
             this.mainField.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainField.Location = new System.Drawing.Point(0, 0);
             this.mainField.Name = "mainField";
-            this.mainField.Size = new System.Drawing.Size(911, 803);
+            this.mainField.Size = new System.Drawing.Size(873, 803);
             this.mainField.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.mainField.TabIndex = 6;
             this.mainField.TabStop = false;
@@ -223,7 +222,7 @@
             // splitContainer3.Panel2
             // 
             this.splitContainer3.Panel2.Controls.Add(this.treeView1);
-            this.splitContainer3.Size = new System.Drawing.Size(238, 807);
+            this.splitContainer3.Size = new System.Drawing.Size(296, 807);
             this.splitContainer3.SplitterDistance = 403;
             this.splitContainer3.TabIndex = 6;
             // 
@@ -236,7 +235,7 @@
             this.dataGridView1.Location = new System.Drawing.Point(0, 0);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowTemplate.Height = 33;
-            this.dataGridView1.Size = new System.Drawing.Size(238, 403);
+            this.dataGridView1.Size = new System.Drawing.Size(296, 403);
             this.dataGridView1.TabIndex = 0;
             // 
             // treeView1
@@ -244,7 +243,7 @@
             this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeView1.Location = new System.Drawing.Point(0, 0);
             this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(238, 400);
+            this.treeView1.Size = new System.Drawing.Size(296, 400);
             this.treeView1.TabIndex = 1;
             this.treeView1.MouseEnter += new System.EventHandler(this.treeView1_MouseEnter);
             // 
@@ -254,7 +253,7 @@
             this.deleteToolStripMenuItem});
             this.cms.Name = "contextMenuStrip1";
             this.cms.Size = new System.Drawing.Size(162, 44);
-            this.cms.Opening += new System.ComponentModel.CancelEventHandler(this.cms_Opening);
+            //this.cms.Opening += new System.ComponentModel.CancelEventHandler(this.cms_Opening);
             // 
             // deleteToolStripMenuItem
             // 

@@ -397,6 +397,7 @@ namespace EventTreeEditor
             splitContainer1.Height = Height - toolStrip1.Height - 40;
             treeView2.Top = ExerciseGroupsBox.Top + ExerciseGroupsBox.Height + 2;
             treeView2.Left = ExerciseGroupsBox.Left;
+            splitContainer1.SplitterDistance = Convert.ToInt32(Width*0.75);
             splitContainer2.SplitterDistance = Convert.ToInt32(Width*0.25);
             splitContainer3.SplitterDistance = Convert.ToInt32(Height*0.5);
             //mainField.Top = main_panel.Top;
@@ -408,14 +409,6 @@ namespace EventTreeEditor
 
             //if (mainField.Image != null)
             //mainField.Image = ResizeImage(mainField.Image, Width, Height);
-        }
-
-        private void toolStripButton1_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void panel2_Resize(object sender, EventArgs e)
-        {
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -449,21 +442,16 @@ namespace EventTreeEditor
             mainField.Focus();
         }
 
-        private void mainField_MouseEnter(object sender, EventArgs e)
-        {
-            mainField.Focus();
-        }
-
         //private Tree<> 
 
-        private void cms_Opening(object sender, CancelEventArgs e)
+        /*private void cms_Opening(object sender, CancelEventArgs e)
         {
             /*if (GetObjIndex(MousePosition) == -1)
             {
                 //cms.Close();
                 SendKeys.Send("{ESC}");
-            }*/
-        }
+            }
+        }*/
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -526,6 +514,8 @@ namespace EventTreeEditor
         {
             CategorieID = Convert.ToInt16(CategoriesBox.SelectedItem.ToString().Split('.')[0]);
             treeView2.Nodes.Clear();
+            treeView1.Nodes.Clear();
+            ObjArr.Clear();
             ExerciseGroupsBox.SelectedIndex = -1;
         }
 
@@ -551,12 +541,13 @@ namespace EventTreeEditor
                     ObjArr = tmp_nodes;
                 }
                 Utils.NormalizeGraph(ObjArr, mainField);
-                ReDarawScene(mainField);
             }
-            catch(Exception ex)
+            catch
             {
+                ObjArr.Clear();
                 //MessageBox.Show(ex.Message);
             }
+            ReDarawScene(mainField);
             //Utils.NormalizeGraph(ObjArr, mainField);
             //MessageBox.Show(e.Node.Level.ToString());
         }

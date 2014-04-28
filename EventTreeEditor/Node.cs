@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Text;
@@ -17,6 +18,7 @@ namespace EventTreeEditor
         public static int DefLineWidth = 1;
         public static double zoomFactor = 1;
         public static double MaxZoomFactor = 3;
+        //private static Font fontStr = new Font();
 
         internal class Type
         {
@@ -25,13 +27,15 @@ namespace EventTreeEditor
             public const int Leaf = 2;
         }
 
-        public string Data1 { get; set; }
+        public string operand { get; set; }
         public GraphNode Data2 { get; set; }
         public string SubTreeName { get; set; }
+        public string ID { get; set; }
 
-        public TreeNode(string data1, GraphNode data2)
+        public TreeNode(string name, string op, GraphNode data2)
         {
-            Data1 = data1;
+            SubTreeName = name;
+            operand = op;
             Data2 = data2;
         }
 
@@ -165,8 +169,28 @@ namespace EventTreeEditor
             var p = new Point(X, Y);//(Convert.ToInt32(X*zoomFactor), Convert.ToInt32(Y*zoomFactor));
             //var Rad = DefCirclRad;//Convert.ToInt32(DefCirclRad*zoomFactor);
             //Radius = Rad;
+            field.SmoothingMode = SmoothingMode.AntiAlias;
+            field.TextRenderingHint = TextRenderingHint.AntiAlias;
             field.FillEllipse(Brush, p.X - Radius, p.Y - Radius, 2 * Radius, 2 * Radius);
             field.DrawEllipse(Pen, p.X - Radius, p.Y - Radius, 2 * Radius, 2 * Radius);
+
+            var fontStr = new Font("Times New Roman", (float)(Radius/1.9),
+                FontStyle.Regular, GraphicsUnit.Pixel);
+            var brushStr = new SolidBrush(Color.Red);
+            field.DrawLine(Pen, new PointF(X - Radius, Y), new PointF(X + Radius, Y));
+            var sizeStr = field.MeasureString(ID, fontStr);
+            field.DrawString(ID, fontStr, brushStr, X - sizeStr.Width/2, (float) (Y - Radius + sizeStr.Height/3));
+            sizeStr = field.MeasureString(operand, fontStr);
+            field.DrawString(operand, fontStr, brushStr, X - sizeStr.Width/2, Y + Radius/2 - sizeStr.Height/2);
+
+            if (Parent != null)
+            {
+                if (Parent.Left == this)
+                    Utils.DrawTextOnCircle(field, fontStr, brushStr, Radius, X, Y, "", "Op1");
+                else if (Parent.Right == this)
+                    Utils.DrawTextOnCircle(field, fontStr, brushStr, Radius, X, Y, "", "Op2");  
+            }
+
             Pen.Dispose();
             Brush.Dispose();
         }

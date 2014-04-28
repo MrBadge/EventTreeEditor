@@ -15,18 +15,19 @@ namespace EventTreeEditor
         private static SqlConnection connection;
         private static DataSet dataSet = new DataSet();
         //private static SqlDataReader reader;
-        private static readonly SqlCommand GetCategories = new SqlCommand("SELECT * FROM dbo.Categories");
+        private const string GetTable = "SELECT * FROM @table";
+        //private static readonly SqlCommand GetCategories = new SqlCommand("SELECT * FROM dbo.Categories");
         private static readonly SqlCommand GetExrGroups =
             new SqlCommand(
                 "SELECT * FROM dbo.ExerciseGroups  WHERE FinishCondition_ID != '' AND StartCondition_ID != ''");
-        private static readonly SqlCommand GetExrGroupping = new SqlCommand("SELECT * FROM dbo.ExerciseGroupping");
+        /*private static readonly SqlCommand GetExrGroupping = new SqlCommand("SELECT * FROM dbo.ExerciseGroupping");
         private static readonly SqlCommand GetExr = new SqlCommand("SELECT * FROM dbo.Exercises");
         private static readonly SqlCommand GetConditions = new SqlCommand("SELECT ID, Comment FROM dbo.Conditions");
         private static readonly SqlCommand GetConditionsComplex =
             new SqlCommand("SELECT * FROM dbo.ConditionComplex");
         private static readonly SqlCommand GetExerciseErrors = new SqlCommand("SELECT * FROM dbo.ExerciseErrors");
         private static readonly SqlCommand GetErrors = new SqlCommand("SELECT * FROM dbo.Errors");
-        private static readonly SqlCommand GetCondOperations = new SqlCommand("SELECT * FROM dbo.ConditionOperations");
+        private static readonly SqlCommand GetCondOperations = new SqlCommand("SELECT * FROM dbo.ConditionOperations");*/
 
         public class InternalDataBase
         {
@@ -46,15 +47,15 @@ namespace EventTreeEditor
                     new SqlConnection(conn_str.ConnectionString);
                 connection.Open();
 
-                dataSet.Tables.Add(GetDataTable(GetCategories, "Categories"));
-                dataSet.Tables.Add(GetDataTable(GetExrGroups, "ExerciseGroups"));
-                dataSet.Tables.Add(GetDataTable(GetExrGroupping, "ExerciseGroupping"));
-                dataSet.Tables.Add(GetDataTable(GetExr, "Exercises"));
-                dataSet.Tables.Add(GetDataTable(GetConditions, "Conditions"));
-                dataSet.Tables.Add(GetDataTable(GetConditionsComplex, "ConditionsComplex"));
-                dataSet.Tables.Add(GetDataTable(GetExerciseErrors, "ExerciseErrors"));
-                dataSet.Tables.Add(GetDataTable(GetErrors, "Errors"));
-                dataSet.Tables.Add(GetDataTable(GetCondOperations, "ConditionOperations"));
+                dataSet.Tables.Add(GetDataTable("Categories"));
+                dataSet.Tables.Add(GetDataTable("ExerciseGroups", GetExrGroups));
+                dataSet.Tables.Add(GetDataTable("ExerciseGroupping"));
+                dataSet.Tables.Add(GetDataTable("Exercises"));
+                dataSet.Tables.Add(GetDataTable("Conditions"));
+                dataSet.Tables.Add(GetDataTable("ConditionComplex"));
+                dataSet.Tables.Add(GetDataTable("ExerciseErrors"));
+                dataSet.Tables.Add(GetDataTable("Errors"));
+                dataSet.Tables.Add(GetDataTable("ConditionOperations"));
                     
                 return dataSet;
             }
@@ -122,7 +123,7 @@ namespace EventTreeEditor
 
         private static List<DataRow> GetCondRow(DataSet ds, int CondID)
         {
-            return (from rw in ds.Tables["ConditionsComplex"].AsEnumerable()
+            return (from rw in ds.Tables["ConditionComplex"].AsEnumerable()
                        where rw.Field<int>("Condition_ID") == CondID
                        select rw).ToList<DataRow>();
         }
@@ -215,7 +216,7 @@ namespace EventTreeEditor
         public static System.Windows.Forms.TreeNode PopulateTreeNode(DataSet ds, int CondID)
         {
             var ComplexCondList =
-                (from row in ds.Tables["ConditionsComplex"].AsEnumerable()
+                (from row in ds.Tables["ConditionComplex"].AsEnumerable()
                  select row["Condition_ID"]).ToList();
             var root = new System.Windows.Forms.TreeNode(GetCondName(ds, CondID), GetChilds(ds, CondID).ToArray());
             //var CurNode = root;
@@ -282,7 +283,7 @@ namespace EventTreeEditor
                 (from row in ds.Tables["ConditionComplex"].AsEnumerable()
                  //where row.Field<int>("ExerciseGroup_ID") == ExerGroupID
                  select row["Condition_ID"]).ToList(); */
-            var original = (from rw in ds.Tables["ConditionsComplex"].AsEnumerable()
+            var original = (from rw in ds.Tables["ConditionComplex"].AsEnumerable()
                        where rw.Field<int>("Condition_ID") == CondID
                        select rw).ToList<DataRow>();
             if (original.Count == 0)
@@ -311,7 +312,7 @@ namespace EventTreeEditor
                 }
                 else
                 {
-                    original = (from rw in ds.Tables["ConditionsComplex"].AsEnumerable()
+                    original = (from rw in ds.Tables["ConditionComplex"].AsEnumerable()
                                 where rw.Field<int>("Condition_ID") == PrevCondID
                                 select rw).ToList<DataRow>();
                     clone = clone.Parent;
@@ -332,20 +333,30 @@ namespace EventTreeEditor
             return errors;
         } 
 
-        private static DataTable GetDataTable(SqlCommand sqlCommand, string name)
+        private static DataTable GetDataTable(string tablename,  SqlCommand sqlCommand = null)
         {
-            sqlCommand.Connection = connection;
-            SqlDataReader reader = sqlCommand.ExecuteReader();
-            DataTable dataTable = new DataTable();
+            SqlDataReader reader;
+            if (sqlCommand != null)
+            {
+                sqlCommand.Connection = connection;
+                reader = sqlCommand.ExecuteReader();
+            }
+            else
+            {
+                var cmd = String.Format("SELECT * FROM {0}", "dbo." + tablename);
+                var sqlCmd = new SqlCommand(cmd, connection);
+                reader = sqlCmd.ExecuteReader();
+            }
+            var dataTable = new DataTable();
             dataTable.Load(reader);
-            dataTable.TableName = name;
+            dataTable.TableName = tablename;
             dataTable.PrimaryKey = new DataColumn[] { dataTable.Columns["ID"] };
             return dataTable;
         }
 
-        public static DataSet GetTable(SqlConnection conn)
+        /*public static DataSet GetTable(SqlConnection conn)
         {
             return null;
-        }
+        }*/
     }
 }
