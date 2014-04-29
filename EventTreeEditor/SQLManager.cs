@@ -15,7 +15,7 @@ namespace EventTreeEditor
         private static SqlConnection connection;
         private static DataSet dataSet = new DataSet();
         //private static SqlDataReader reader;
-        private const string GetTable = "SELECT * FROM @table";
+        //private const string GetTable = "SELECT * FROM @table";
         //private static readonly SqlCommand GetCategories = new SqlCommand("SELECT * FROM dbo.Categories");
         private static readonly SqlCommand GetExrGroups =
             new SqlCommand(
@@ -207,10 +207,9 @@ namespace EventTreeEditor
                 return new List<System.Windows.Forms.TreeNode>();
             if (LeftChild == null)
                 return new[] { operation, RightChild }.ToList();
-            else if (RightChild == null)
-                return new[] { LeftChild, operation }.ToList();
-            else
-                return new[] { LeftChild, operation, RightChild }.ToList();
+            return RightChild == null
+                ? new[] {LeftChild, operation}.ToList()
+                : new[] {LeftChild, operation, RightChild}.ToList();
         }
 
         public static System.Windows.Forms.TreeNode PopulateTreeNode(DataSet ds, int CondID)
@@ -353,6 +352,36 @@ namespace EventTreeEditor
             dataTable.PrimaryKey = new DataColumn[] { dataTable.Columns["ID"] };
             return dataTable;
         }
+
+        private static void BulkUpload(DataTable dt)
+        {
+            //dt.TableName = "YourDataTable";
+            string constr = "your connection string";
+            using (SqlConnection connection = new SqlConnection(constr))
+            {
+                connection.Open();
+                //CreatingTranscation so that it can rollback if got any error while uploading
+                SqlTransaction trans = connection.BeginTransaction();
+                //Start bulkCopy
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection,
+                SqlBulkCopyOptions.TableLock |
+                SqlBulkCopyOptions.FireTriggers,
+                trans))
+                {
+                    //Setting timeout to 0 means no time out for this command will not timeout until upload complete.
+                    //Change as per you
+                    bulkCopy.BulkCopyTimeout = 0;
+                    bulkCopy.DestinationTableName = dt.TableName;
+                    //write the data in the "dataTable"
+                    bulkCopy.WriteToServer(dt);
+                }
+            }
+        }
+
+        public static DataTable GetCondCompl()
+        {
+            return dataSet.Tables["ConditionComplex"];
+        } 
 
         /*public static DataSet GetTable(SqlConnection conn)
         {

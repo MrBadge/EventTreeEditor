@@ -43,10 +43,11 @@
             this.treeView2 = new System.Windows.Forms.TreeView();
             this.mainField = new System.Windows.Forms.PictureBox();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.dgProp = new System.Windows.Forms.DataGridView();
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.cms = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editPropetiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -64,7 +65,7 @@
             this.splitContainer3.Panel1.SuspendLayout();
             this.splitContainer3.Panel2.SuspendLayout();
             this.splitContainer3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgProp)).BeginInit();
             this.cms.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -203,6 +204,7 @@
             this.mainField.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.mainField.TabIndex = 6;
             this.mainField.TabStop = false;
+            this.mainField.Click += new System.EventHandler(this.mainField_Click);
             this.mainField.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mainField_MouseDown);
             this.mainField.MouseEnter += new System.EventHandler(this.main_panel_MouseEnter);
             this.mainField.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mainField_MouseMove);
@@ -217,7 +219,7 @@
             // 
             // splitContainer3.Panel1
             // 
-            this.splitContainer3.Panel1.Controls.Add(this.dataGridView1);
+            this.splitContainer3.Panel1.Controls.Add(this.dgProp);
             // 
             // splitContainer3.Panel2
             // 
@@ -226,17 +228,21 @@
             this.splitContainer3.SplitterDistance = 403;
             this.splitContainer3.TabIndex = 6;
             // 
-            // dataGridView1
+            // dgProp
             // 
-            this.dataGridView1.AllowUserToAddRows = false;
-            this.dataGridView1.AllowUserToDeleteRows = false;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridView1.Location = new System.Drawing.Point(0, 0);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowTemplate.Height = 33;
-            this.dataGridView1.Size = new System.Drawing.Size(296, 403);
-            this.dataGridView1.TabIndex = 0;
+            this.dgProp.AllowUserToAddRows = false;
+            this.dgProp.AllowUserToDeleteRows = false;
+            this.dgProp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgProp.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgProp.Location = new System.Drawing.Point(0, 0);
+            this.dgProp.Name = "dgProp";
+            this.dgProp.RowHeadersVisible = false;
+            this.dgProp.RowTemplate.Height = 33;
+            this.dgProp.Size = new System.Drawing.Size(296, 403);
+            this.dgProp.TabIndex = 0;
+            this.dgProp.MouseEnter += new System.EventHandler(this.dataGridView1_MouseEnter);
             // 
             // treeView1
             // 
@@ -245,15 +251,16 @@
             this.treeView1.Name = "treeView1";
             this.treeView1.Size = new System.Drawing.Size(296, 400);
             this.treeView1.TabIndex = 1;
+            this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             this.treeView1.MouseEnter += new System.EventHandler(this.treeView1_MouseEnter);
             // 
             // cms
             // 
             this.cms.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.editPropetiesToolStripMenuItem,
             this.deleteToolStripMenuItem});
             this.cms.Name = "contextMenuStrip1";
-            this.cms.Size = new System.Drawing.Size(162, 44);
-            //this.cms.Opening += new System.ComponentModel.CancelEventHandler(this.cms_Opening);
+            this.cms.Size = new System.Drawing.Size(254, 128);
             // 
             // deleteToolStripMenuItem
             // 
@@ -261,6 +268,13 @@
             this.deleteToolStripMenuItem.Size = new System.Drawing.Size(161, 40);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+            // 
+            // editPropetiesToolStripMenuItem
+            // 
+            this.editPropetiesToolStripMenuItem.Name = "editPropetiesToolStripMenuItem";
+            this.editPropetiesToolStripMenuItem.Size = new System.Drawing.Size(253, 40);
+            this.editPropetiesToolStripMenuItem.Text = "Edit properties";
+            this.editPropetiesToolStripMenuItem.Click += new System.EventHandler(this.editPropetiesToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -292,7 +306,7 @@
             this.splitContainer3.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
             this.splitContainer3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgProp)).EndInit();
             this.cms.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -317,7 +331,8 @@
         private System.Windows.Forms.SplitContainer splitContainer3;
         private System.Windows.Forms.TreeView treeView1;
         private System.Windows.Forms.PictureBox mainField;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView dgProp;
+        private System.Windows.Forms.ToolStripMenuItem editPropetiesToolStripMenuItem;
 
     }
 }

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -439,7 +440,8 @@ namespace EventTreeEditor
 
         private void main_panel_MouseEnter(object sender, EventArgs e)
         {
-            mainField.Focus();
+            if (Application.OpenForms.Count == 1)
+                mainField.Focus();
         }
 
         //private Tree<> 
@@ -554,12 +556,14 @@ namespace EventTreeEditor
 
         private void treeView2_MouseEnter(object sender, EventArgs e)
         {
-            treeView2.Focus();
+            if (Application.OpenForms.Count == 1)
+                treeView2.Focus();
         }
 
         private void treeView1_MouseEnter(object sender, EventArgs e)
         {
-            treeView1.Focus();
+            if (Application.OpenForms.Count == 1)
+                treeView1.Focus();
         }
 
         private void splitContainer2_Resize(object sender, EventArgs e)
@@ -570,6 +574,88 @@ namespace EventTreeEditor
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
+        }
+
+        private void ShowPropeties(DataGridView dg, Dictionary<string, string> prop)
+        {
+
+            //dg.RowCount = prop.Count;
+            //var i = 0;
+            var propArray = (from row in prop select new { Property = row.Key, Value = row.Value }).ToArray();
+            dg.DataSource = propArray;
+            dg.AutoResizeRows(DataGridViewAutoSizeRowsMode.AllCells);
+            dg.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            //dg.AutoResizeColumns();
+            //dg.ReadOnly = false;
+        }
+
+        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (e.Node.Level > 0)
+            {
+                var name = e.Node.Text.Split(new[] { '.', ' ' }, 2, StringSplitOptions.RemoveEmptyEntries)[1];
+                var id = e.Node.Text.Split('.')[0];
+                var prop = new Dictionary<string, string>
+                {
+                    {"ID", id},
+                    {"name", name}
+                };  
+                ShowPropeties(dgProp, prop);
+            }
+        }
+
+        private void mainField_Click(object sender, EventArgs e)
+        {
+            if (Glob_Ind_Tmp != -1)
+            {
+                var tmp = ObjArr.Find(item => item.Checked);
+                if (tmp != null && !tmp.Equals(ObjArr[Glob_Ind_Tmp]))
+                    tmp.Checked = false;
+                //if (tmp != null && tmp.Equals(ObjArr[Glob_Ind_Tmp]))
+                //    return;
+                var prop = new Dictionary<string, string>
+                {
+                    {"ID", ObjArr[Glob_Ind_Tmp].ID},
+                    {"Name", ObjArr[Glob_Ind_Tmp].SubTreeName},
+                    //{"Operand", ObjArr[Glob_Ind_Tmp].operand},
+                    //{"Radius", Convert.ToString(ObjArr[Glob_Ind_Tmp].Radius)},
+                    //{"X", Convert.ToString(ObjArr[Glob_Ind_Tmp].X)},
+                    //{"Y", Convert.ToString(ObjArr[Glob_Ind_Tmp].Y)}
+                };
+                if (ObjArr[Glob_Ind_Tmp].operand != null)
+                {
+                    prop.Add("Operand 1", ObjArr[Glob_Ind_Tmp].Left == null ? "" : ObjArr[Glob_Ind_Tmp].Left.ID);
+                    prop.Add("Operation", ObjArr[Glob_Ind_Tmp].operand);
+                    prop.Add("Operand 2", ObjArr[Glob_Ind_Tmp].Right == null ? "" : ObjArr[Glob_Ind_Tmp].Right.ID);
+                }
+                ObjArr[Glob_Ind_Tmp].Checked = true;
+                ShowPropeties(dgProp, prop);
+            }
+        }
+
+        private void dataGridView1_MouseEnter(object sender, EventArgs e)
+        {
+            if (Application.OpenForms.Count == 1)
+                dgProp.Focus();
+        }
+
+        private void editPropetiesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //this.Enabled = false;
+            var tmp = new Exsercises();
+            if (!ObjArr[Glob_Ind_Tmp].HasChildren)
+                tmp.ChooseLeafProp(dataSet, ObjArr[Glob_Ind_Tmp]);
+            else if (ObjArr[Glob_Ind_Tmp].ChildrenCount == 2)
+                tmp.ChooseSubTreeProp(dataSet, ObjArr[Glob_Ind_Tmp]);
+            else
+                tmp.ChooseSubTreeProp(dataSet, ObjArr[Glob_Ind_Tmp], true);
+            tmp.ShowDialog();
+            //if ()
+        }
+
+        public void SelectionDone()
+        {
+            ReDarawScene(mainField);
         }
     }
 }

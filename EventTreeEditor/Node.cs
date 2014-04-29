@@ -50,6 +50,7 @@ namespace EventTreeEditor
     public class GraphNode : TreeNode
     {
         public Color color { get; set; }
+        public bool Checked { get; set; }
 
         private int _X;
         private int _Y;
@@ -102,6 +103,21 @@ namespace EventTreeEditor
             get
             {
                 return IsRoot ? 0 : Parent.Level + 1;
+            }
+        }
+
+        public bool HasChildren
+        {
+            get { return (Left != null || Right != null); }
+        }
+
+        public int ChildrenCount
+        {
+            get
+            {
+                if (Left != null && Right != null) return 2;
+                if (Left != null || Right != null) return 1;
+                return 0;
             }
         }
 
@@ -165,7 +181,7 @@ namespace EventTreeEditor
         {
             DrawConnections(field);
             var Brush = new SolidBrush(color);
-            var Pen = new Pen(Color.Black, DefLineWidth);
+            var Pen = new Pen(Checked ? Color.Blue : Color.Black, DefLineWidth);
             var p = new Point(X, Y);//(Convert.ToInt32(X*zoomFactor), Convert.ToInt32(Y*zoomFactor));
             //var Rad = DefCirclRad;//Convert.ToInt32(DefCirclRad*zoomFactor);
             //Radius = Rad;
