@@ -11,13 +11,15 @@ using System.Windows.Forms.VisualStyles;
 
 namespace EventTreeEditor
 {
-    public partial class Exsercises : Form
+    public partial class PropEditor : Form
     {
         private GraphNode CurGn;
         private ComboBox cb;
         private TreeView tv;
+        private TextBox tb;
         private Dictionary<int, string> conditionNames;
-        private Dictionary<int, string> operations; 
+        private Dictionary<int, string> operations;
+        private DataSet ds;
 
         private class SimpleConditon
         {
@@ -33,6 +35,11 @@ namespace EventTreeEditor
             public string ToString(bool onlyName = false)
             {
                 return onlyName ? Name : ID + ". " + Name;
+            }
+
+            public override string ToString()
+            {
+                return ToString();
             }
         }
 
@@ -52,22 +59,24 @@ namespace EventTreeEditor
             }
         }
 
-        public Exsercises()
+        public PropEditor()
         {
             InitializeComponent();
             //AutoSize = true;
-            Width = 400;
-            Height = 200;
+            //Width = 400;
+            //Height = 200;
         }
 
         private void Exsercises_Shown(object sender, EventArgs e)
         {
-           
+            AutoSize = true;
+            AutoSizeMode = AutoSizeMode.GrowAndShrink;
         }
 
         public void ChooseSubTreeProp(DataSet ds, GraphNode gn, bool unary = false)
         {
             CurGn = gn;
+            this.ds = ds;
             Text = "Choose subtree properties";
             if (ds == null || !ds.Tables.Contains("Conditions") || !ds.Tables.Contains("ConditionComplex") ||
                 !ds.Tables.Contains("ConditionOperations")) return;
@@ -129,23 +138,48 @@ namespace EventTreeEditor
             {
                 Parent = this,
                 Width = cb.Width,
-                Height = 80,
+                Height = 100,
                 Left = 0,
                 Top = cb.Top + cb.Height + 2,
             };
-            tv.Nodes.Add(new System.Windows.Forms.TreeNode());
+            cb.SelectedIndexChanged += cb_SelectedIndexChanged;
+            //cb.SelectedItem = cb.Items.
+            //tv.Nodes.Add(SQLManager.PopulateTreeNode(ds, Convert.ToInt16(CurGn.ID)));
+            cb_SelectedIndexChanged(null, null);
             AutoSize = true;
             PlaceButtons(tv.Height + tv.Top, CloseForm, ApplySubTree);
         }
 
-        private void UpdateNode(TreeView tv)
+        private void cb_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
+            tv.Nodes.Clear();
+            int id = Convert.ToInt16(cb.SelectedItem.ToString().Split('.')[0]);
+            tv.Nodes.Add(SQLManager.PopulateTreeNode(ds, id));
+            tv.Nodes[0].Expand();
+        }
+
+        public void EditLabel(DataSet ds, GraphNode gn)
+        {
+            CurGn = gn;
+            Text = "Label editor";
+            this.ds = ds;
+            tb = new TextBox
+            {
+                Parent = this,
+                Top = 0,
+                Left = 0,
+                Width = Width,
+                //Height = 50,
+                Text = gn.SubTreeName
+            };
+            //AutoSize = true;
+            PlaceButtons(tb.Height, CloseForm, ApplyLabel);
         }
 
         public void ChooseLeafProp(DataSet ds, GraphNode gn)
         {
             CurGn = gn;
+            this.ds = ds;
             Text = "Choose simple condition";
             if (ds == null || !ds.Tables.Contains("Conditions")) return;
             var complexConditions = (from rw in ds.Tables["ConditionComplex"].AsEnumerable()
@@ -194,11 +228,22 @@ namespace EventTreeEditor
             apply.Click += new EventHandler(aply);
             apply.Left = Width/2 - apply.Width - 5;
             cancel.Left = Width/2 + 5;
+            //AutoSize = true;
+            //Height = apply.Top + apply.Height + 5;
         }
 
         private void CloseForm(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void ApplyLabel(object sender, EventArgs e)
+        {
+            CurGn.SubTreeName = tb.Text;
+            var rw = ds.Tables["Conditions"].Select("ID=" + CurGn.ID).FirstOrDefault();
+            if (rw != null) rw["Comment"] = tb.Text;
+            CloseForm(sender, e);
+            //ds.Tables["Conditions"].R
         }
 
         private void ApplySubTree(object sender, EventArgs e)
@@ -210,8 +255,7 @@ namespace EventTreeEditor
         {
             CurGn.ID = (cb.SelectedItem as SimpleConditon).ID;
             CurGn.SubTreeName = (cb.SelectedItem as SimpleConditon).Name; //cb.Items.Cast<SimpleConditon>().ToList()[cb.SelectedIndex].Name; //smth awesome
-            //(SimpleConditon)cb.se;
-            ((Form1) Application.OpenForms[0]).SelectionDone();
+            //((Form1) Application.OpenForms[0]).SelectionDone();
             CloseForm(sender, e);
         }
     }

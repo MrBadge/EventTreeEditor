@@ -32,8 +32,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.normGraphSB = new System.Windows.Forms.ToolStripButton();
+            this.syncSB = new System.Windows.Forms.ToolStripButton();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.main_panel = new System.Windows.Forms.Panel();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
@@ -46,8 +46,12 @@
             this.dgProp = new System.Windows.Forms.DataGridView();
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.cms = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editPropetiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripComboBox1 = new System.Windows.Forms.ToolStripComboBox();
+            this.editLabelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.editPropertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -74,7 +78,8 @@
             this.toolStrip1.CanOverflow = false;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButton1,
-            this.toolStripButton2});
+            this.normGraphSB,
+            this.syncSB});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
@@ -82,25 +87,26 @@
             this.toolStrip1.TabIndex = 4;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // toolStripButton1
+            // normGraphSB
             // 
-            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton1.Text = "toolStripButton1";
-            this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click_1);
+            this.normGraphSB.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.normGraphSB.Image = ((System.Drawing.Image)(resources.GetObject("normGraphSB.Image")));
+            this.normGraphSB.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.normGraphSB.Name = "normGraphSB";
+            this.normGraphSB.Size = new System.Drawing.Size(23, 22);
+            this.normGraphSB.Text = "Graph normalization";
+            this.normGraphSB.Click += new System.EventHandler(this.toolStripButton1_Click_1);
             // 
-            // toolStripButton2
+            // syncSB
             // 
-            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton2.Image")));
-            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton2.Text = "toolStripButton2";
-            this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
+            this.syncSB.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.syncSB.Image = ((System.Drawing.Image)(resources.GetObject("syncSB.Image")));
+            this.syncSB.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.syncSB.Name = "syncSB";
+            this.syncSB.Size = new System.Drawing.Size(23, 35);
+            this.syncSB.Text = "Synchronization with DB";
+            this.syncSB.ToolTipText = "Synchronization with DB";
+            this.syncSB.Click += new System.EventHandler(this.toolStripButton2_Click);
             // 
             // splitContainer1
             // 
@@ -258,23 +264,57 @@
             // 
             this.cms.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.editPropetiesToolStripMenuItem,
+            this.editPropertiesToolStripMenuItem,
+            this.editLabelToolStripMenuItem,
             this.deleteToolStripMenuItem});
             this.cms.Name = "contextMenuStrip1";
-            this.cms.Size = new System.Drawing.Size(254, 128);
+            this.cms.Size = new System.Drawing.Size(254, 208);
+            this.cms.Opening += new System.ComponentModel.CancelEventHandler(this.cms_Opening);
+            // 
+            // editPropetiesToolStripMenuItem
+            // 
+            this.editPropetiesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripComboBox1});
+            this.editPropetiesToolStripMenuItem.Name = "editPropetiesToolStripMenuItem";
+            this.editPropetiesToolStripMenuItem.Size = new System.Drawing.Size(192, 40);
+            this.editPropetiesToolStripMenuItem.Text = "Operand";
+            this.editPropetiesToolStripMenuItem.DropDownOpening += new System.EventHandler(this.editPropetiesToolStripMenuItem_DropDownOpening);
+            // 
+            // toolStripComboBox1
+            // 
+            this.toolStripComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.toolStripComboBox1.Name = "toolStripComboBox1";
+            this.toolStripComboBox1.Size = new System.Drawing.Size(121, 43);
+            // 
+            // editLabelToolStripMenuItem
+            // 
+            this.editLabelToolStripMenuItem.Name = "editLabelToolStripMenuItem";
+            this.editLabelToolStripMenuItem.Size = new System.Drawing.Size(192, 40);
+            this.editLabelToolStripMenuItem.Text = "Edit label";
+            this.editLabelToolStripMenuItem.Click += new System.EventHandler(this.editLabelToolStripMenuItem_Click);
             // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(161, 40);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(192, 40);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
-            // editPropetiesToolStripMenuItem
+            // toolStripButton1
             // 
-            this.editPropetiesToolStripMenuItem.Name = "editPropetiesToolStripMenuItem";
-            this.editPropetiesToolStripMenuItem.Size = new System.Drawing.Size(253, 40);
-            this.editPropetiesToolStripMenuItem.Text = "Edit properties";
-            this.editPropetiesToolStripMenuItem.Click += new System.EventHandler(this.editPropetiesToolStripMenuItem_Click);
+            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
+            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButton1.Text = "Save current graph to local DB";
+            // 
+            // editPropertiesToolStripMenuItem
+            // 
+            this.editPropertiesToolStripMenuItem.Name = "editPropertiesToolStripMenuItem";
+            this.editPropertiesToolStripMenuItem.Size = new System.Drawing.Size(253, 40);
+            this.editPropertiesToolStripMenuItem.Text = "Edit properties";
+            this.editPropertiesToolStripMenuItem.Click += new System.EventHandler(this.editPropertiesToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -284,7 +324,7 @@
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.splitContainer1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Condition graph editor";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
             this.Resize += new System.EventHandler(this.Form1_Resize);
@@ -317,11 +357,11 @@
 
         private System.Windows.Forms.BindingSource bindingSource1;
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.ToolStripButton toolStripButton1;
+        private System.Windows.Forms.ToolStripButton normGraphSB;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ContextMenuStrip cms;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
-        private System.Windows.Forms.ToolStripButton toolStripButton2;
+        private System.Windows.Forms.ToolStripButton syncSB;
         private System.Windows.Forms.Panel main_panel;
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.Panel panel1;
@@ -333,6 +373,10 @@
         private System.Windows.Forms.PictureBox mainField;
         private System.Windows.Forms.DataGridView dgProp;
         private System.Windows.Forms.ToolStripMenuItem editPropetiesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editLabelToolStripMenuItem;
+        private System.Windows.Forms.ToolStripComboBox toolStripComboBox1;
+        private System.Windows.Forms.ToolStripButton toolStripButton1;
+        private System.Windows.Forms.ToolStripMenuItem editPropertiesToolStripMenuItem;
 
     }
 }

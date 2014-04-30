@@ -90,6 +90,11 @@ namespace EventTreeEditor
             Parent = parent;
         }
 
+        public GraphNode GetParent
+        {
+            get { return Parent == null ? this : Parent.GetParent; }
+        }
+
         public bool IsRoot
         {
             get

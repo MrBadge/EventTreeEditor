@@ -29,10 +29,28 @@ namespace EventTreeEditor
         private static readonly SqlCommand GetErrors = new SqlCommand("SELECT * FROM dbo.Errors");
         private static readonly SqlCommand GetCondOperations = new SqlCommand("SELECT * FROM dbo.ConditionOperations");*/
 
-        public class InternalDataBase
+        public struct Operand
         {
-             
+            public string ID;
+            public string Name;
+            public override string ToString()
+            {
+                return Name;
+            }
+
+            public Operand(string id, string nm)
+            {
+                ID = id;
+                Name = nm;
+            }
         }
+
+        public static List<Operand> GetOperands(DataSet ds)
+        {
+            return (from row in ds.Tables["ConditionOperations"].AsEnumerable()
+                select row).Select(row => new Operand(Convert.ToString(row["ID"]), Convert.ToString(row["Name"]).Trim()))
+                .ToList();
+        } 
 
         public static DataSet FillDataSet()
         {

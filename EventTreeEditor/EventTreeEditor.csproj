@@ -47,11 +47,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Exsercises.cs">
+    <Compile Include="PropEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Exsercises.Designer.cs">
-      <DependentUpon>Exsercises.cs</DependentUpon>
+    <Compile Include="PropEditor.Designer.cs">
+      <DependentUpon>PropEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -65,8 +65,8 @@
     <Compile Include="SQLManager.cs" />
     <Compile Include="Tree.cs" />
     <Compile Include="Utils.cs" />
-    <EmbeddedResource Include="Exsercises.resx">
-      <DependentUpon>Exsercises.cs</DependentUpon>
+    <EmbeddedResource Include="PropEditor.resx">
+      <DependentUpon>PropEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -80,6 +80,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="ClassDiagram1.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

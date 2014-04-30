@@ -1,6 +1,6 @@
 ﻿namespace EventTreeEditor
 {
-    partial class Exsercises
+    partial class PropEditor
     {
         /// <summary>
         /// Required designer variable.

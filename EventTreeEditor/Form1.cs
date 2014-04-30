@@ -202,7 +202,7 @@ namespace EventTreeEditor
         private void mainField_MouseDown(object sender, MouseEventArgs e)
         {
             //CurPlace = new Point(Convert.ToInt32(e.X), Convert.ToInt32(e.Y));
-            if (IsDragging) return;
+            if (IsDragging || cms.Visible) return;
             var p = new Point(Convert.ToInt32(e.X), Convert.ToInt32(e.Y));
             Glob_Ind_Tmp = GetObjIndex(p);
             if (e.Button == MouseButtons.Right && Glob_Ind_Tmp != -1)
@@ -305,7 +305,7 @@ namespace EventTreeEditor
                     //throw;
                 }
             }
-            /*else if (IsScaling)
+                /*else if (IsScaling)
             {
                 try
                 {
@@ -410,6 +410,13 @@ namespace EventTreeEditor
 
             //if (mainField.Image != null)
             //mainField.Image = ResizeImage(mainField.Image, Width, Height);
+            toolStripComboBox1.SelectedIndexChanged += toolStripComboBox1_SelectedIndexChanged;
+            toolStripComboBox1.DropDownClosed += toolStripComboBox1_DropDownClosed;
+        }
+
+        void toolStripComboBox1_DropDownClosed(object sender, EventArgs e)
+        {
+            cms.Close();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -457,6 +464,12 @@ namespace EventTreeEditor
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (ObjArr[Glob_Ind_Tmp].IsRoot && ObjArr[Glob_Ind_Tmp].ID == GetCurExrID())
+            {
+                MessageBox.Show("Can't remove exercise root node", "Error", MessageBoxButtons.OK,
+                    MessageBoxIcon.Exclamation);
+                return;
+            }
             if (ObjArr[Glob_Ind_Tmp].Parent != null)
             {
                 if (ObjArr[Glob_Ind_Tmp].Parent.Left != null &&
@@ -479,11 +492,16 @@ namespace EventTreeEditor
             ReDarawScene(mainField);
         }
 
+        private string GetCurExrID()
+        {
+            return treeView1.Nodes.Count == 0 ? "-1" : treeView1.Nodes[0].Text.Split('.')[0];
+        }
+
         private void toolStripButton2_Click(object sender, EventArgs e)
         {
             //Cursor.Current = Cursors.Hand;
-            this.Cursor = Cursors.Hand;
-            IsDragging = true;
+            //this.Cursor = Cursors.Hand;
+            //IsDragging = true;
             //var exrs = new Exsercises();
             //exrs.Show();
             //SQLManager.ConnectSQL();
@@ -591,46 +609,42 @@ namespace EventTreeEditor
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (e.Node.Level > 0)
+            if (e.Node.Level == 0) return;
+            var name = e.Node.Text.Split(new[] { '.', ' ' }, 2, StringSplitOptions.RemoveEmptyEntries)[1];
+            var id = e.Node.Text.Split('.')[0];
+            var prop = new Dictionary<string, string>
             {
-                var name = e.Node.Text.Split(new[] { '.', ' ' }, 2, StringSplitOptions.RemoveEmptyEntries)[1];
-                var id = e.Node.Text.Split('.')[0];
-                var prop = new Dictionary<string, string>
-                {
-                    {"ID", id},
-                    {"name", name}
-                };  
-                ShowPropeties(dgProp, prop);
-            }
+                {"ID", id},
+                {"name", name}
+            };  
+            ShowPropeties(dgProp, prop);
         }
 
         private void mainField_Click(object sender, EventArgs e)
         {
-            if (Glob_Ind_Tmp != -1)
+            if (Glob_Ind_Tmp == -1 || cms.Visible) return;
+            var tmp = ObjArr.Find(item => item.Checked);
+            if (tmp != null && !tmp.Equals(ObjArr[Glob_Ind_Tmp]))
+                tmp.Checked = false;
+            //if (tmp != null && tmp.Equals(ObjArr[Glob_Ind_Tmp]))
+            //    return;
+            var prop = new Dictionary<string, string>
             {
-                var tmp = ObjArr.Find(item => item.Checked);
-                if (tmp != null && !tmp.Equals(ObjArr[Glob_Ind_Tmp]))
-                    tmp.Checked = false;
-                //if (tmp != null && tmp.Equals(ObjArr[Glob_Ind_Tmp]))
-                //    return;
-                var prop = new Dictionary<string, string>
-                {
-                    {"ID", ObjArr[Glob_Ind_Tmp].ID},
-                    {"Name", ObjArr[Glob_Ind_Tmp].SubTreeName},
-                    //{"Operand", ObjArr[Glob_Ind_Tmp].operand},
-                    //{"Radius", Convert.ToString(ObjArr[Glob_Ind_Tmp].Radius)},
-                    //{"X", Convert.ToString(ObjArr[Glob_Ind_Tmp].X)},
-                    //{"Y", Convert.ToString(ObjArr[Glob_Ind_Tmp].Y)}
-                };
-                if (ObjArr[Glob_Ind_Tmp].operand != null)
-                {
-                    prop.Add("Operand 1", ObjArr[Glob_Ind_Tmp].Left == null ? "" : ObjArr[Glob_Ind_Tmp].Left.ID);
-                    prop.Add("Operation", ObjArr[Glob_Ind_Tmp].operand);
-                    prop.Add("Operand 2", ObjArr[Glob_Ind_Tmp].Right == null ? "" : ObjArr[Glob_Ind_Tmp].Right.ID);
-                }
-                ObjArr[Glob_Ind_Tmp].Checked = true;
-                ShowPropeties(dgProp, prop);
+                {"ID", ObjArr[Glob_Ind_Tmp].ID},
+                {"Name", ObjArr[Glob_Ind_Tmp].SubTreeName},
+                //{"Operand", ObjArr[Glob_Ind_Tmp].operand},
+                //{"Radius", Convert.ToString(ObjArr[Glob_Ind_Tmp].Radius)},
+                //{"X", Convert.ToString(ObjArr[Glob_Ind_Tmp].X)},
+                //{"Y", Convert.ToString(ObjArr[Glob_Ind_Tmp].Y)}
+            };
+            if (ObjArr[Glob_Ind_Tmp].operand != null)
+            {
+                prop.Add("Operand 1", ObjArr[Glob_Ind_Tmp].Left == null ? "" : ObjArr[Glob_Ind_Tmp].Left.ID);
+                prop.Add("Operation", ObjArr[Glob_Ind_Tmp].operand);
+                prop.Add("Operand 2", ObjArr[Glob_Ind_Tmp].Right == null ? "" : ObjArr[Glob_Ind_Tmp].Right.ID);
             }
+            ObjArr[Glob_Ind_Tmp].Checked = true;
+            ShowPropeties(dgProp, prop);
         }
 
         private void dataGridView1_MouseEnter(object sender, EventArgs e)
@@ -639,22 +653,73 @@ namespace EventTreeEditor
                 dgProp.Focus();
         }
 
-        private void editPropetiesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //this.Enabled = false;
-            var tmp = new Exsercises();
-            if (!ObjArr[Glob_Ind_Tmp].HasChildren)
-                tmp.ChooseLeafProp(dataSet, ObjArr[Glob_Ind_Tmp]);
-            else if (ObjArr[Glob_Ind_Tmp].ChildrenCount == 2)
-                tmp.ChooseSubTreeProp(dataSet, ObjArr[Glob_Ind_Tmp]);
-            else
-                tmp.ChooseSubTreeProp(dataSet, ObjArr[Glob_Ind_Tmp], true);
-            tmp.ShowDialog();
-            //if ()
-        }
-
         public void SelectionDone()
         {
+            ReDarawScene(mainField);
+        }
+
+        private void cms_Opening(object sender, CancelEventArgs e)
+        {
+            cms.Items[0].Visible = ObjArr[Glob_Ind_Tmp].HasChildren;
+            cms.Items[1].Visible = !ObjArr[Glob_Ind_Tmp].IsRoot && ObjArr[Glob_Ind_Tmp].ID != null;
+        }
+
+        private void editLabelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var tmp = new PropEditor();
+            if (String.IsNullOrEmpty(ObjArr[Glob_Ind_Tmp].ID)) return;
+            tmp.EditLabel(dataSet, ObjArr[Glob_Ind_Tmp]);
+            tmp.ShowDialog();
+            if (ObjArr[Glob_Ind_Tmp].GetParent.ID == null) return;
+            treeView1.Nodes.Clear();
+            treeView1.Nodes.Add(SQLManager.PopulateTreeNode(dataSet, Convert.ToInt16(ObjArr[Glob_Ind_Tmp].GetParent.ID)));
+            treeView1.ExpandAll();
+        }
+
+        private void editPropetiesToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
+        {
+            toolStripComboBox1.Items.Clear();
+            foreach (var operand in SQLManager.GetOperands(dataSet))
+            {
+                toolStripComboBox1.Items.Add(operand);
+            }
+            foreach (var item in toolStripComboBox1.Items.Cast<object>().Where(item => 
+                item.ToString() == ObjArr[Glob_Ind_Tmp].operand))
+            {
+                toolStripComboBox1.SelectedItem = item;
+                break;
+            }
+        }
+
+        private void toolStripComboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ObjArr[Glob_Ind_Tmp].operand = toolStripComboBox1.SelectedItem.ToString();
+            var rw = dataSet.Tables["ConditionComplex"].Select("Condition_ID=" + ObjArr[Glob_Ind_Tmp].ID).FirstOrDefault();
+            if (rw != null) rw["Operation_ID"] = Convert.ToInt16(((SQLManager.Operand)toolStripComboBox1.SelectedItem).ID);
+            //treeView1.Nodes.Clear();
+            //treeView1.Nodes.Add(SQLManager.PopulateTreeNode(dataSet, Convert.ToInt16(ObjArr[Glob_Ind_Tmp].GetParent.ID)));
+            //treeView1.ExpandAll();
+            toolStripComboBox1.DroppedDown = false;
+            ReDarawScene(mainField);
+        }
+
+        private void editPropertiesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var tmp = new PropEditor();
+            //if (String.IsNullOrEmpty(ObjArr[Glob_Ind_Tmp].operand))
+            //{
+            //    MessageBox.Show("Select operation first", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            //    return;
+            //}
+            if (ObjArr[Glob_Ind_Tmp].HasChildren)
+            {
+                tmp.ChooseSubTreeProp(dataSet, ObjArr[Glob_Ind_Tmp], ObjArr[Glob_Ind_Tmp].ChildrenCount != 2);   
+            }
+            else
+            {
+                tmp.ChooseLeafProp(dataSet, ObjArr[Glob_Ind_Tmp]);
+            }
+            tmp.ShowDialog();
             ReDarawScene(mainField);
         }
     }
