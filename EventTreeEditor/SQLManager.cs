@@ -13,6 +13,7 @@ namespace EventTreeEditor
     static class SQLManager
     {
         private static SqlConnection connection;
+        private static string conn_string;
         private static DataSet dataSet = new DataSet();
         //private static SqlDataReader reader;
         //private const string GetTable = "SELECT * FROM @table";
@@ -56,13 +57,19 @@ namespace EventTreeEditor
         {
             try
             {
-                var conn_str = new SqlConnectionStringBuilder();
-                conn_str.IntegratedSecurity = true;
-                conn_str.DataSource = @".\SQLEXPRESS";
-                //conn_str.UserInstance = true;
-                conn_str.InitialCatalog = @"DrivingCourses";
+                conn_string = Properties.Settings.Default.ConnectonString;
+                if (String.IsNullOrEmpty(conn_string))
+                { 
+                    //Properties.Settings.Default.Save();
+                    var conn_str = new SqlConnectionStringBuilder();
+                    conn_str.IntegratedSecurity = true;
+                    conn_str.DataSource = @".\SQLEXPRESS";
+                    //conn_str.UserInstance = true;
+                    conn_str.InitialCatalog = @"DrivingCourses";
+                    conn_string = conn_str.ConnectionString;
+                }
                 connection =
-                    new SqlConnection(conn_str.ConnectionString);
+                    new SqlConnection(conn_string);
                 connection.Open();
 
                 dataSet.Tables.Add(GetDataTable("Categories"));
@@ -75,6 +82,7 @@ namespace EventTreeEditor
                 dataSet.Tables.Add(GetDataTable("Errors"));
                 dataSet.Tables.Add(GetDataTable("ConditionOperations"));
                     
+                connection.Close();
                 return dataSet;
             }
             catch(Exception e)
@@ -188,6 +196,12 @@ namespace EventTreeEditor
             return row.Count != 1 ? "" : row[0].ToString().Trim();
         }
 
+        public static string OperationtToID(DataSet ds, string operation)
+        {
+            var rw = ds.Tables["ConditionOperations"].Select("Name='" + operation+"'").FirstOrDefault();
+            return rw != null ? Convert.ToString(rw["ID"]) : null;
+        }
+
         private static List<System.Windows.Forms.TreeNode> GetChilds(DataSet ds, int CondID)
         {
             System.Windows.Forms.TreeNode LeftChild;
@@ -288,6 +302,7 @@ namespace EventTreeEditor
             //}
         //}
 
+        //obsolete method
         public static System.Windows.Forms.TreeNode PopulateTreeNodeError(DataSet ds, int CondID)
         {
             //var row = (from rw in ds.Tables["ConditionComplex"].AsEnumerable()
@@ -371,29 +386,35 @@ namespace EventTreeEditor
             return dataTable;
         }
 
-        private static void BulkUpload(DataTable dt)
+        public static void UploadSqlServer(DataTable dt)
         {
-            //dt.TableName = "YourDataTable";
-            string constr = "your connection string";
-            using (SqlConnection connection = new SqlConnection(constr))
+            using (var cmd = new SqlCommand(String.Format("SELECT * FROM {0}", "dbo." + dt.TableName), 
+                new SqlConnection(conn_string)))
             {
-                connection.Open();
-                //CreatingTranscation so that it can rollback if got any error while uploading
-                SqlTransaction trans = connection.BeginTransaction();
+                using (var da = new SqlDataAdapter(cmd))
+                {
+                    using (var cb = new SqlCommandBuilder(da))
+                        da.Update(dt);
+                }
+            }
+            //dt.TableName = "YourDataTable";
+            /*if (conn_string == null) return;
+            using (var conn = new SqlConnection(conn_string))
+            {
+                conn.Open();
+                SqlTransaction trans = connection.BeginTransaction(); //for rollback if error
                 //Start bulkCopy
                 using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection,
                 SqlBulkCopyOptions.TableLock |
                 SqlBulkCopyOptions.FireTriggers,
                 trans))
                 {
-                    //Setting timeout to 0 means no time out for this command will not timeout until upload complete.
-                    //Change as per you
                     bulkCopy.BulkCopyTimeout = 0;
                     bulkCopy.DestinationTableName = dt.TableName;
-                    //write the data in the "dataTable"
                     bulkCopy.WriteToServer(dt);
                 }
-            }
+                trans.Commit();
+            }*/
         }
 
         public static DataTable GetCondCompl()

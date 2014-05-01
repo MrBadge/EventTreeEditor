@@ -29,12 +29,12 @@ namespace EventTreeEditor
 
         public string operand { get; set; }
         public GraphNode Data2 { get; set; }
-        public string SubTreeName { get; set; }
+        public string Label { get; set; }
         public string ID { get; set; }
 
         public TreeNode(string name, string op, GraphNode data2)
         {
-            SubTreeName = name;
+            Label = name;
             operand = op;
             Data2 = data2;
         }
@@ -69,7 +69,7 @@ namespace EventTreeEditor
         public GraphNode Left { get; set; }
         public GraphNode Right { get; set; }
         public GraphNode Parent { get; set; }
-        public string Name { get; set; }
+        //public string Name { get; set; }
         public string Description { get; set; }
 
         /*public GraphNode Left
@@ -93,6 +93,15 @@ namespace EventTreeEditor
         public GraphNode GetParent
         {
             get { return Parent == null ? this : Parent.GetParent; }
+        }
+
+        public static bool IsChildOf(GraphNode gn, GraphNode curNode)
+        {
+            if (curNode.Level < gn.Level || curNode.Equals(gn))
+                return false;
+            if (curNode.Parent.Equals(gn))
+                return true;
+            return IsChildOf(gn, curNode.Parent);
         }
 
         public bool IsRoot

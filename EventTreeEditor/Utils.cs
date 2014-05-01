@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,7 @@ namespace EventTreeEditor
     {
         private static TreeNode GtoTNode(GraphNode gn)
         {
-            return new TreeNode(gn.Name, gn.operand, gn);
+            return new TreeNode(gn.Label, gn.operand, gn);
         }
         
         public static Tree<TreeNode> ObjArrToTree(List<GraphNode> arr)
@@ -51,11 +52,11 @@ namespace EventTreeEditor
             return root;
         }
 
-        public static List<GraphNode> TreeToObjArr(System.Windows.Forms.TreeNode tree)
+        public static List<GraphNode> TreeToObjArr(System.Windows.Forms.TreeNode tree, GraphNode parent = null)
         {
             //var original = arr.Find(item => item.Parent == null);
             var ObjArr = new List<GraphNode>();
-            if (tree == null || tree.Nodes.Count == 0)
+            if (tree == null)
                 return null;
 
             //var LeftTree = tree.Nodes.Count > 0 ? tree.Nodes[0] : null;
@@ -63,11 +64,11 @@ namespace EventTreeEditor
             //if (LeftTree == null && operand == null) continue;
             //var RightTree = tree.Nodes.Count >= 2 ? tree.Nodes[2] : null;
             //GraphNode clone = null;//new GraphNode(null) {X = 0, Y = 0, Radius = TreeNode.DefCirclRad, Data1 = tree.Text};
-            var root = new GraphNode(null)
+            var root = new GraphNode(parent)
             {
                 Radius = TreeNode.DefCirclRad,
-                operand = operand.Text,
-                SubTreeName = tree.Text.Split(new[] { '.', ' ' }, 2, StringSplitOptions.RemoveEmptyEntries)[1],
+                operand = operand != null ? operand.Text : null,
+                Label = tree.Text.Split(new[] { '.', ' ' }, 2, StringSplitOptions.RemoveEmptyEntries)[1],
                 ID = tree.Text.Split('.')[0]
             };
             ObjArr.Add(root);
@@ -103,7 +104,7 @@ namespace EventTreeEditor
                     var Left = new GraphNode(root)
                     {
                         Radius = TreeNode.DefCirclRad,
-                        SubTreeName = LeftTree.Text.Split(new[] {'.', ' '}, 2, StringSplitOptions.RemoveEmptyEntries)[1],
+                        Label = LeftTree.Text.Split(new[] {'.', ' '}, 2, StringSplitOptions.RemoveEmptyEntries)[1],
                         ID = LeftTree.Text.Split('.')[0]
                     };
                     root.Left = Left;
@@ -126,7 +127,7 @@ namespace EventTreeEditor
                         X = 0,
                         Y = 0,
                         Radius = TreeNode.DefCirclRad,
-                        SubTreeName =
+                        Label =
                             RightTree.Text.Split(new[] {'.', ' '}, 2, StringSplitOptions.RemoveEmptyEntries)[1],
                         ID = RightTree.Text.Split('.')[0]
                     };
@@ -149,7 +150,48 @@ namespace EventTreeEditor
             }
 
             return ObjArr;
-        } 
+        }
+
+        public static bool GraphNodeArrayCorrect(List<GraphNode> arr)
+        {
+            if (arr.Count == 0 || arr.FindAll(node => node.IsRoot).Count > 1 || arr.FindAll(node => node.ID == null 
+                || (node.HasChildren && node.operand == null)).Count > 0)
+                return false;
+            return true; //CHECK THIS!
+        }
+
+        public static void GraphNodeArrayToDataSet(List<GraphNode> arr, DataSet ds)
+        {
+            DataRow rw;
+            if (arr.Count == 1)
+            {
+                rw = ds.Tables["ConditionComplex"].Select("Condition_ID=" + arr[0].ID).FirstOrDefault();
+                if (rw != null)
+                {
+                    //ds.Tables["ConditionComplex"].Rows.Remove(rw);
+                    rw.Delete();
+                }
+            }
+            foreach (var node in arr)
+            {
+                if (node.HasChildren)
+                {
+                    rw = ds.Tables["ConditionComplex"].Select("Condition_ID=" + node.ID).FirstOrDefault();
+                    if (rw == null)
+                    {
+                        rw = ds.Tables["ConditionComplex"].NewRow();
+                        ds.Tables["ConditionComplex"].Rows.Add(rw);
+                    }
+                    rw["Condition_ID"] = node.ID;
+                    rw["Operation_ID"] = SQLManager.OperationtToID(ds, node.operand);
+                    rw["Operand_1_ID"] = node.Left != null ? (object)node.Left.ID : DBNull.Value;
+                    rw["Operand_2_ID"] = node.Right != null ? (object)node.Right.ID : DBNull.Value;
+                }
+
+                rw = ds.Tables["Conditions"].Select("ID=" + node.ID).FirstOrDefault() ?? ds.Tables["Conditions"].NewRow();
+                rw["Comment"] = node.Label;
+            }
+        }
 
         public static Double LineLength(Point A, Point B)
         {

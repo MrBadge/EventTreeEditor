@@ -19,6 +19,7 @@ namespace EventTreeEditor
         private TextBox tb;
         private Dictionary<int, string> conditionNames;
         private Dictionary<int, string> operations;
+        private List<GraphNode> objArr; 
         private DataSet ds;
 
         private class SimpleConditon
@@ -73,9 +74,10 @@ namespace EventTreeEditor
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
         }
 
-        public void ChooseSubTreeProp(DataSet ds, GraphNode gn, bool unary = false)
+        public void ChooseSubTreeProp(DataSet ds, GraphNode gn, List<GraphNode> arr,  bool unary = false)
         {
             CurGn = gn;
+            objArr = arr;
             this.ds = ds;
             Text = "Choose subtree properties";
             if (ds == null || !ds.Tables.Contains("Conditions") || !ds.Tables.Contains("ConditionComplex") ||
@@ -170,7 +172,7 @@ namespace EventTreeEditor
                 Left = 0,
                 Width = Width,
                 //Height = 50,
-                Text = gn.SubTreeName
+                Text = gn.Label
             };
             //AutoSize = true;
             PlaceButtons(tb.Height, CloseForm, ApplyLabel);
@@ -239,7 +241,7 @@ namespace EventTreeEditor
 
         private void ApplyLabel(object sender, EventArgs e)
         {
-            CurGn.SubTreeName = tb.Text;
+            CurGn.Label = tb.Text;
             var rw = ds.Tables["Conditions"].Select("ID=" + CurGn.ID).FirstOrDefault();
             if (rw != null) rw["Comment"] = tb.Text;
             CloseForm(sender, e);
@@ -248,13 +250,33 @@ namespace EventTreeEditor
 
         private void ApplySubTree(object sender, EventArgs e)
         {
-            
+            var subtree = tv.Nodes[0];
+            //foreach (var node in objArr)
+            //{
+            //    if (GraphNode.IsChildOf(CurGn, node))
+            //        objArr.Remove(node);
+            //}
+            var graphNodes = Utils.TreeToObjArr(subtree, CurGn.Parent);
+            objArr.RemoveAll(item => GraphNode.IsChildOf(CurGn, item));
+            objArr.Remove(CurGn);
+            if (CurGn.Equals(CurGn.Parent.Left))
+                CurGn.Parent.Left = graphNodes.Find(item => item.Parent.Equals(CurGn.Parent));
+            else
+                CurGn.Parent.Right = graphNodes.Find(item => item.Parent.Equals(CurGn.Parent));
+            objArr.AddRange(graphNodes);
+            CloseForm(sender, e);
         }
 
         private void ApplyLeaf(object sender, EventArgs e)
         {
+            if (CurGn.HasChildren)
+                objArr.RemoveAll(item => GraphNode.IsChildOf(CurGn, item));
+            //objArr.Remove(CurGn);
+            CurGn.operand = null;
+            CurGn.Left = null;
+            CurGn.Right = null;
             CurGn.ID = (cb.SelectedItem as SimpleConditon).ID;
-            CurGn.SubTreeName = (cb.SelectedItem as SimpleConditon).Name; //cb.Items.Cast<SimpleConditon>().ToList()[cb.SelectedIndex].Name; //smth awesome
+            CurGn.Label = (cb.SelectedItem as SimpleConditon).Name; //cb.Items.Cast<SimpleConditon>().ToList()[cb.SelectedIndex].Name; //smth awesome
             //((Form1) Application.OpenForms[0]).SelectionDone();
             CloseForm(sender, e);
         }

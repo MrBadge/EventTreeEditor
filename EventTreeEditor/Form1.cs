@@ -385,6 +385,11 @@ namespace EventTreeEditor
             return false;
         }
 
+        private double GetGoodPerc(double val, double defval)
+        {
+            return (val <= 0 || val >= 1) ? defval : val;
+        }
+
         private void Form1_Resize(object sender, EventArgs e)
         {
             //main_panel.Width = Convert.ToInt32(Width*0.8);
@@ -396,22 +401,17 @@ namespace EventTreeEditor
             splitContainer1.Width = Width - 19;
             splitContainer1.Top = toolStrip1.Height;
             splitContainer1.Height = Height - toolStrip1.Height - 40;
-            treeView2.Top = ExerciseGroupsBox.Top + ExerciseGroupsBox.Height + 2;
-            treeView2.Left = ExerciseGroupsBox.Left;
-            splitContainer1.SplitterDistance = Convert.ToInt32(Width*0.75);
-            splitContainer2.SplitterDistance = Convert.ToInt32(Width*0.25);
-            splitContainer3.SplitterDistance = Convert.ToInt32(Height*0.5);
+            mainTV.Top = ExerciseGroupsBox.Top + ExerciseGroupsBox.Height + 2;
+            mainTV.Left = ExerciseGroupsBox.Left;
             //mainField.Top = main_panel.Top;
             //mainField.Left = main_panel.Left;
             
             //treeView2.Width = splitContainer2.Width;
-            treeView2.Height = splitContainer2.Height - 44;
+            mainTV.Height = splitContainer2.Height - 44;
             //splitContainer1.SplitterDistance = Convert.ToInt32(Width*0.8);
 
             //if (mainField.Image != null)
             //mainField.Image = ResizeImage(mainField.Image, Width, Height);
-            toolStripComboBox1.SelectedIndexChanged += toolStripComboBox1_SelectedIndexChanged;
-            toolStripComboBox1.DropDownClosed += toolStripComboBox1_DropDownClosed;
         }
 
         void toolStripComboBox1_DropDownClosed(object sender, EventArgs e)
@@ -421,8 +421,32 @@ namespace EventTreeEditor
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            //Width = Properties.Settings.Default.Width;
+            //Height = Properties.Settings.Default.Height;
             Form1_Resize(sender, e);
+            //var tmp = Properties.Settings.Default.MainFieldSD;
+            //splitContainer2.SplitterDistance =
+            //    Convert.ToInt32(Properties.Settings.Default.MainFieldSD);//Properties["MainFieldSD"]);
+            //splitContainer1.SplitterDistance =
+            //    Convert.ToInt32(Properties.Settings.Default.MainTreeSD);//Properties["MainTreeSD"]);
+            //splitContainer3.SplitterDistance =
+            //    Convert.ToInt32(Properties.Settings.Default.PropPanelSD);//Properties["PropPanelSD"]);
             dataSet = SQLManager.FillDataSet();
+            if (dataSet == null)
+            {
+                /*mainTV.Enabled = false;
+                subTV.Enabled = false;
+                CategoriesBox.Enabled = false;
+                ExerciseGroupsBox.Enabled = false;
+                cms.Items[0].Enabled = cms.Items[1].Enabled = cms.Items[2].Enabled = false;
+                saveCurExrLocal.Enabled = false;
+                syncSB.Enabled = false;
+                return;*/
+                MessageBox.Show("Work without SQL DB is not fully supported now, closing", "Error", MessageBoxButtons.OK,
+                    MessageBoxIcon.Exclamation);
+                Application.Exit(); 
+                return;
+            }
             foreach (DataRow row in dataSet.Tables["Categories"].Rows)
             {
                 //Console.Write(row);
@@ -433,6 +457,8 @@ namespace EventTreeEditor
             //CategorieID = 
             //CategorieID = dataSet.Tables["Categories"].
             //mainField.ContextMenuStrip = cms;
+            toolStripComboBox1.SelectedIndexChanged += toolStripComboBox1_SelectedIndexChanged;
+            toolStripComboBox1.DropDownClosed += toolStripComboBox1_DropDownClosed;
         }
 
         private void toolStripButton1_Click_1(object sender, EventArgs e)
@@ -494,17 +520,21 @@ namespace EventTreeEditor
 
         private string GetCurExrID()
         {
-            return treeView1.Nodes.Count == 0 ? "-1" : treeView1.Nodes[0].Text.Split('.')[0];
+            return subTV.Nodes.Count == 0 ? "-1" : subTV.Nodes[0].Text.Split('.')[0];
         }
 
         private void toolStripButton2_Click(object sender, EventArgs e)
         {
+            Cursor.Current = Cursors.WaitCursor;
+            SQLManager.UploadSqlServer(dataSet.Tables["Conditions"]);
+            SQLManager.UploadSqlServer(dataSet.Tables["ConditionComplex"]);
             //Cursor.Current = Cursors.Hand;
             //this.Cursor = Cursors.Hand;
             //IsDragging = true;
             //var exrs = new Exsercises();
             //exrs.Show();
             //SQLManager.ConnectSQL();
+            Cursor.Current = Cursors.Default;
         }
 
         private void ExerciseGroupsBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -513,8 +543,8 @@ namespace EventTreeEditor
             ExerGroupID = ExerciseGroupsBox.SelectedItem != null ? Convert.ToInt16(ExerciseGroupsBox.SelectedItem.ToString().Split('.')[0]) : -1;
             if (ExerGroupID != -1 && CategorieID != -1)
             {
-                treeView2.Nodes.Add(SQLManager.PopulateTreeNodeMain(dataSet, ExerGroupID, CategorieID));
-                treeView2.ExpandAll();
+                mainTV.Nodes.Add(SQLManager.PopulateTreeNodeMain(dataSet, ExerGroupID, CategorieID));
+                mainTV.ExpandAll();
             }
             //treeView2.Nodes.Add("начало");
             //treeView2.Nodes.Add("конец");
@@ -533,34 +563,34 @@ namespace EventTreeEditor
         private void CategoriesBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             CategorieID = Convert.ToInt16(CategoriesBox.SelectedItem.ToString().Split('.')[0]);
-            treeView2.Nodes.Clear();
-            treeView1.Nodes.Clear();
+            mainTV.Nodes.Clear();
+            subTV.Nodes.Clear();
             ObjArr.Clear();
             ExerciseGroupsBox.SelectedIndex = -1;
         }
 
         private void panel1_Resize(object sender, EventArgs e)
         {
-            treeView2.Width = panel1.Width;
+            mainTV.Width = panel1.Width;
         }
 
         private void treeView2_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (e.Node.Level != 2 && (e.Node.Level != 1 || e.Node.GetNodeCount(false) != 0)) return;
-            treeView1.Nodes.Clear();
+            subTV.Nodes.Clear();
             try
             {
                 var tmp = SQLManager.PopulateTreeNode(dataSet, Convert.ToInt16(e.Node.Text.Split('.')[0]));
-                treeView1.Nodes.Add(tmp);
-                treeView1.ExpandAll();
+                subTV.Nodes.Add(tmp);
+                subTV.ExpandAll();
                 ObjArr.Clear();
-                var tmp_nodes = Utils.TreeToObjArr(tmp);
-                if (tmp_nodes != null)
+                var tmpNodes = Utils.TreeToObjArr(tmp);
+                if (tmpNodes != null)
                 {
                     //ObjArr.Clear();
-                    ObjArr = tmp_nodes;
+                    ObjArr = tmpNodes;
+                    Utils.NormalizeGraph(ObjArr, mainField);
                 }
-                Utils.NormalizeGraph(ObjArr, mainField);
             }
             catch
             {
@@ -575,13 +605,13 @@ namespace EventTreeEditor
         private void treeView2_MouseEnter(object sender, EventArgs e)
         {
             if (Application.OpenForms.Count == 1)
-                treeView2.Focus();
+                mainTV.Focus();
         }
 
         private void treeView1_MouseEnter(object sender, EventArgs e)
         {
             if (Application.OpenForms.Count == 1)
-                treeView1.Focus();
+                subTV.Focus();
         }
 
         private void splitContainer2_Resize(object sender, EventArgs e)
@@ -609,13 +639,13 @@ namespace EventTreeEditor
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (e.Node.Level == 0) return;
+            if (e.Node.Level == 0 || e.Node.Index % 2 == 1) return;
             var name = e.Node.Text.Split(new[] { '.', ' ' }, 2, StringSplitOptions.RemoveEmptyEntries)[1];
             var id = e.Node.Text.Split('.')[0];
             var prop = new Dictionary<string, string>
             {
                 {"ID", id},
-                {"name", name}
+                {"Name", name}
             };  
             ShowPropeties(dgProp, prop);
         }
@@ -631,7 +661,7 @@ namespace EventTreeEditor
             var prop = new Dictionary<string, string>
             {
                 {"ID", ObjArr[Glob_Ind_Tmp].ID},
-                {"Name", ObjArr[Glob_Ind_Tmp].SubTreeName},
+                {"Name", ObjArr[Glob_Ind_Tmp].Label},
                 //{"Operand", ObjArr[Glob_Ind_Tmp].operand},
                 //{"Radius", Convert.ToString(ObjArr[Glob_Ind_Tmp].Radius)},
                 //{"X", Convert.ToString(ObjArr[Glob_Ind_Tmp].X)},
@@ -653,15 +683,15 @@ namespace EventTreeEditor
                 dgProp.Focus();
         }
 
-        public void SelectionDone()
+        /*public void SelectionDone()
         {
             ReDarawScene(mainField);
-        }
+        }*/
 
         private void cms_Opening(object sender, CancelEventArgs e)
         {
             cms.Items[0].Visible = ObjArr[Glob_Ind_Tmp].HasChildren;
-            cms.Items[1].Visible = !ObjArr[Glob_Ind_Tmp].IsRoot && ObjArr[Glob_Ind_Tmp].ID != null;
+            cms.Items[1].Visible = !ObjArr[Glob_Ind_Tmp].IsRoot;
         }
 
         private void editLabelToolStripMenuItem_Click(object sender, EventArgs e)
@@ -671,9 +701,9 @@ namespace EventTreeEditor
             tmp.EditLabel(dataSet, ObjArr[Glob_Ind_Tmp]);
             tmp.ShowDialog();
             if (ObjArr[Glob_Ind_Tmp].GetParent.ID == null) return;
-            treeView1.Nodes.Clear();
-            treeView1.Nodes.Add(SQLManager.PopulateTreeNode(dataSet, Convert.ToInt16(ObjArr[Glob_Ind_Tmp].GetParent.ID)));
-            treeView1.ExpandAll();
+            subTV.Nodes.Clear();
+            subTV.Nodes.Add(SQLManager.PopulateTreeNode(dataSet, Convert.ToInt16(ObjArr[Glob_Ind_Tmp].GetParent.ID)));
+            subTV.ExpandAll();
         }
 
         private void editPropetiesToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
@@ -705,7 +735,7 @@ namespace EventTreeEditor
 
         private void editPropertiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var tmp = new PropEditor();
+            /*var tmp = new PropEditor();
             //if (String.IsNullOrEmpty(ObjArr[Glob_Ind_Tmp].operand))
             //{
             //    MessageBox.Show("Select operation first", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -713,14 +743,55 @@ namespace EventTreeEditor
             //}
             if (ObjArr[Glob_Ind_Tmp].HasChildren)
             {
-                tmp.ChooseSubTreeProp(dataSet, ObjArr[Glob_Ind_Tmp], ObjArr[Glob_Ind_Tmp].ChildrenCount != 2);   
+                tmp.ChooseSubTreeProp(dataSet, ObjArr[Glob_Ind_Tmp], ObjArr, ObjArr[Glob_Ind_Tmp].ChildrenCount != 2);   
             }
             else
             {
                 tmp.ChooseLeafProp(dataSet, ObjArr[Glob_Ind_Tmp]);
             }
             tmp.ShowDialog();
+            Utils.NormalizeGraph(ObjArr, mainField);
+            ReDarawScene(mainField);*/
+        }
+
+        private void simpleConditionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var tmp = new PropEditor();
+            tmp.ChooseLeafProp(dataSet, ObjArr[Glob_Ind_Tmp]);
+            tmp.ShowDialog();
+            Utils.NormalizeGraph(ObjArr, mainField);
             ReDarawScene(mainField);
+        }
+
+        private void addSubtreeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var tmp = new PropEditor();
+            tmp.ChooseSubTreeProp(dataSet, ObjArr[Glob_Ind_Tmp], ObjArr, ObjArr[Glob_Ind_Tmp].ChildrenCount == 1);
+            tmp.ShowDialog();
+            Utils.NormalizeGraph(ObjArr, mainField);
+            ReDarawScene(mainField);
+        }
+
+        private void saveCurExrLocal_Click(object sender, EventArgs e)
+        {
+            if (Utils.GraphNodeArrayCorrect(ObjArr))
+            {
+                Utils.GraphNodeArrayToDataSet(ObjArr, dataSet);
+            }
+            else
+            {
+                MessageBox.Show("Graph error occurs", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            /*Properties.Settings.Default.Width = Width;
+            Properties.Settings.Default.Height = Height;
+            Properties.Settings.Default.MainFieldSD = splitContainer2.SplitterDistance;
+            Properties.Settings.Default.MainTreeSD = splitContainer1.SplitterDistance;
+            Properties.Settings.Default.PropPanelSD = splitContainer3.SplitterDistance;
+            Properties.Settings.Default.Save();*/
         }
     }
 }
