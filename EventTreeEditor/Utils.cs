@@ -171,6 +171,7 @@ namespace EventTreeEditor
                     //ds.Tables["ConditionComplex"].Rows.Remove(rw);
                     rw.Delete();
                 }
+                ds.AcceptChanges();
             }
             foreach (var node in arr)
             {
@@ -209,8 +210,10 @@ namespace EventTreeEditor
             root.X = field.Width / 2;
             for (int i = 1; i < levels; i++)
             {
-                var nodes = graph.FindAll(item => item.Level == i);
-                int level_X = Convert.ToInt32(field.Width/Math.Pow(2, i));
+                var nodes = graph.FindAll(item => item.Level == i).OrderBy(item => item.Parent.X).ToList();
+                //if (i > 0)
+                //    nodes.Sort((x, y) => Convert.ToInt32(Math.Pow(-1, i)*x.Parent.X.CompareTo(y.Parent.Y)));
+                //int level_X = Convert.ToInt32(field.Width/Math.Pow(2, i));
                 var shift = -1;
                 var shift_X = field.Width/(2*nodes.Count);
                 var j = 1;

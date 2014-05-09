@@ -124,7 +124,7 @@ namespace EventTreeEditor
                 array.AddRange(from error in errors
                     let tmp = ds.Tables["Errors"].Rows.Find(error["Error_ID"])
                     where tmp != null
-                    select new System.Windows.Forms.TreeNode(error["Condition_ID"] + ". " + tmp["Description"]));
+                    select new System.Windows.Forms.TreeNode(error["ID"] + ". " + tmp["Description"]));
                 var trNd = new System.Windows.Forms.TreeNode(row["ID"] + ". " + row["Name"], array.ToArray());
                 //var node = new System.Windows.Forms.TreeNode(row["ID"] + ". " + row["Name"]);
 
@@ -244,8 +244,9 @@ namespace EventTreeEditor
                 : new[] {LeftChild, operation, RightChild}.ToList();
         }
 
-        public static System.Windows.Forms.TreeNode PopulateTreeNode(DataSet ds, int CondID)
+        public static System.Windows.Forms.TreeNode PopulateTreeNode(DataSet ds, int ID, bool isCond)
         {
+            var CondID = !isCond ? Convert.ToInt16(ds.Tables["ExerciseErrors"].Select("ID=" + ID).FirstOrDefault()["Condition_ID"]) : ID;
             var ComplexCondList =
                 (from row in ds.Tables["ConditionComplex"].AsEnumerable()
                  select row["Condition_ID"]).ToList();

@@ -425,12 +425,12 @@ namespace EventTreeEditor
             //Height = Properties.Settings.Default.Height;
             Form1_Resize(sender, e);
             //var tmp = Properties.Settings.Default.MainFieldSD;
-            //splitContainer2.SplitterDistance =
-            //    Convert.ToInt32(Properties.Settings.Default.MainFieldSD);//Properties["MainFieldSD"]);
-            //splitContainer1.SplitterDistance =
-            //    Convert.ToInt32(Properties.Settings.Default.MainTreeSD);//Properties["MainTreeSD"]);
-            //splitContainer3.SplitterDistance =
-            //    Convert.ToInt32(Properties.Settings.Default.PropPanelSD);//Properties["PropPanelSD"]);
+            splitContainer2.SplitterDistance =
+                Convert.ToInt32(0.25 * Width);//Properties["MainFieldSD"]);
+            splitContainer1.SplitterDistance =
+                Convert.ToInt32(0.75 * Width);//Properties["MainTreeSD"]);
+            splitContainer3.SplitterDistance =
+                Convert.ToInt32(0.5 * Height);//Properties["PropPanelSD"]);
             dataSet = SQLManager.FillDataSet();
             if (dataSet == null)
             {
@@ -543,6 +543,7 @@ namespace EventTreeEditor
             ExerGroupID = ExerciseGroupsBox.SelectedItem != null ? Convert.ToInt16(ExerciseGroupsBox.SelectedItem.ToString().Split('.')[0]) : -1;
             if (ExerGroupID != -1 && CategorieID != -1)
             {
+                mainTV.Nodes.Clear();
                 mainTV.Nodes.Add(SQLManager.PopulateTreeNodeMain(dataSet, ExerGroupID, CategorieID));
                 mainTV.ExpandAll();
             }
@@ -557,7 +558,7 @@ namespace EventTreeEditor
             {
                 ExerciseGroupsBox.Items.Add(row["ID"] + ". " + row["Description"]);
             }
-            //ExerciseGroupsBox.SelectedItem = ExerciseGroupsBox.Items
+            ExerciseGroupsBox.SelectedItem = ExerciseGroupsBox.Items[0];
         }
 
         private void CategoriesBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -580,7 +581,7 @@ namespace EventTreeEditor
             subTV.Nodes.Clear();
             try
             {
-                var tmp = SQLManager.PopulateTreeNode(dataSet, Convert.ToInt16(e.Node.Text.Split('.')[0]));
+                var tmp = SQLManager.PopulateTreeNode(dataSet, Convert.ToInt16(e.Node.Text.Split('.')[0]), e.Node.Index < 2);
                 subTV.Nodes.Add(tmp);
                 subTV.ExpandAll();
                 ObjArr.Clear();
@@ -702,7 +703,7 @@ namespace EventTreeEditor
             tmp.ShowDialog();
             if (ObjArr[Glob_Ind_Tmp].GetParent.ID == null) return;
             subTV.Nodes.Clear();
-            subTV.Nodes.Add(SQLManager.PopulateTreeNode(dataSet, Convert.ToInt16(ObjArr[Glob_Ind_Tmp].GetParent.ID)));
+            subTV.Nodes.Add(SQLManager.PopulateTreeNode(dataSet, Convert.ToInt16(ObjArr[Glob_Ind_Tmp].GetParent.ID), true));
             subTV.ExpandAll();
         }
 
@@ -757,7 +758,7 @@ namespace EventTreeEditor
         private void simpleConditionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var tmp = new PropEditor();
-            tmp.ChooseLeafProp(dataSet, ObjArr[Glob_Ind_Tmp]);
+            tmp.ChooseLeafProp(dataSet, ObjArr[Glob_Ind_Tmp], ObjArr);
             tmp.ShowDialog();
             Utils.NormalizeGraph(ObjArr, mainField);
             ReDarawScene(mainField);
@@ -793,5 +794,85 @@ namespace EventTreeEditor
             Properties.Settings.Default.PropPanelSD = splitContainer3.SplitterDistance;
             Properties.Settings.Default.Save();*/
         }
+
+        private void mainTV_MouseClick(object sender, MouseEventArgs e)
+        {
+            
+        }
+
+        private void AddExerciseErrorClick(object sender, EventArgs e)
+        {
+            //MessageBox.Show("test");
+            var tmp = new PropEditor();
+            tmp.AddExerciseError(dataSet, Convert.ToInt32(mainTV.SelectedNode.Text.Split('.')[0]));
+            tmp.ShowDialog();
+            ExerciseGroupsBox_SelectedIndexChanged(null, null);
+        }
+
+        private void AddExerciseClick(object sender, EventArgs e)
+        {
+            var tmp = new PropEditor();
+            tmp.AddExercise(dataSet, Convert.ToInt32(ExerciseGroupsBox.Text.Split('.')[0]),
+                Convert.ToInt32(CategoriesBox.Text.Split('.')[0]));
+            tmp.ShowDialog();
+            ExerciseGroupsBox_SelectedIndexChanged(null, null);
+        }
+
+        private void RemoveErrorClick(object sender, EventArgs e)
+        {
+            var Id = mainTV.SelectedNode.Text.Split('.')[0];
+            var rw = dataSet.Tables["ExerciseErrors"].Select("ID=" + Id).FirstOrDefault();
+            DataRow rw2 = null;
+            if (rw != null)
+            {
+                rw2 = dataSet.Tables["Errors"].Select("ID=" + rw["Error_ID"]).FirstOrDefault();
+                rw.Delete();
+            }
+            if (rw2 != null) rw2.Delete();
+            dataSet.AcceptChanges();
+            ExerciseGroupsBox_SelectedIndexChanged(null, null);
+        }
+
+        private void RemoveExerciseGroupClick(object sender, EventArgs e)
+        {
+            var ExrsID = mainTV.SelectedNode.Text.Split('.')[0];
+            var ExrsGrID = ExerciseGroupsBox.Text.Split('.')[0];
+            var rw1 = dataSet.Tables["ExerciseGroupping"].Select("ExerciseGroup_ID=" + ExrsGrID + "AND Exercise_ID=" + ExrsID).FirstOrDefault();
+            if (rw1 != null) rw1.Delete();
+            /*var rws2 = dataSet.Tables["ExerciseErrors"].Select("Exercise_ID=" + ExrsID);
+            foreach (var row in rws2)
+            {
+                row.Delete();
+            }*/
+            dataSet.AcceptChanges();
+            ExerciseGroupsBox_SelectedIndexChanged(null, null);
+        }
+
+        private void mainTV_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            mainTV.SelectedNode = e.Node;
+            if (e.Node.Level == 0)
+            {
+                cmsTV.Items.Clear();
+                cmsTV.Items.Add(new ToolStripMenuItem("Add new exercise", null, AddExerciseClick));
+                cmsTV.Show(mainTV, e.Location);
+            }
+            if (e.Node.Level == 1 && e.Node.Index > 1)
+            {
+                cmsTV.Items.Clear();
+                cmsTV.Items.Add(new ToolStripMenuItem("Add new error", null, AddExerciseErrorClick));
+                cmsTV.Items.Add(new ToolStripMenuItem("Remove exercise group", null, RemoveExerciseGroupClick));
+                cmsTV.Show(mainTV, e.Location);
+            }
+            if (e.Node.Level == 2 && e.Node.Index > 1)
+            {
+                cmsTV.Items.Clear();
+                cmsTV.Items.Add(new ToolStripMenuItem("Remove error", null, RemoveErrorClick));
+                cmsTV.Show(mainTV, e.Location);
+            }
+            
+        }
+
     }
 }
