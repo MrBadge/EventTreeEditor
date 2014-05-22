@@ -101,40 +101,47 @@ namespace EventTreeEditor
             operations = (from rw in ds.Tables["ConditionOperations"].AsEnumerable()
                           select rw).ToDictionary(row => (int)row["ID"], row => Convert.ToString(row["Name"]));
             var complexConditions = new List<ComplexCondition>();
-            if (!all)
+            try
             {
-                complexConditions = (from rw in ds.Tables["ConditionComplex"].AsEnumerable()
-                    where
-                        (!unary
-                            ? rw["Operand_1_ID"].ToString() != "" && rw["Operand_2_ID"].ToString() != ""
-                            : (rw["Operand_1_ID"].ToString() != "" ^ rw["Operand_2_ID"].ToString() != "")) &&
-                        conditionNames.Keys.Contains(Convert.ToInt16(rw["Condition_ID"]))
-                    select rw).Select(
-                        row =>
-                            new ComplexCondition(Convert.ToString(row["Condition_ID"]),
-                                conditionNames[Convert.ToInt16(row["Condition_ID"])],
-                                new SimpleConditon(Convert.ToString(row["Operand_1_ID"]),
-                                    conditionNames[Convert.ToInt16(row["Operand_1_ID"])]),
-                                operations[Convert.ToInt16(row["Operation_ID"])],
-                                new SimpleConditon(Convert.ToString(row["Operand_1_ID"]),
-                                    conditionNames[Convert.ToInt16(row["Operand_1_ID"])])))
-                    .ToList();
+                if (!all)
+                {
+                    complexConditions = (from rw in ds.Tables["ConditionComplex"].AsEnumerable()
+                        where
+                            (!unary
+                                ? rw["Operand_1_ID"].ToString() != "" && rw["Operand_2_ID"].ToString() != ""
+                                : (rw["Operand_1_ID"].ToString() != "" ^ rw["Operand_2_ID"].ToString() != "")) &&
+                            conditionNames.Keys.Contains(Convert.ToInt16(rw["Condition_ID"]))
+                        select rw).Select(
+                            row =>
+                                new ComplexCondition(Convert.ToString(row["Condition_ID"]),
+                                    conditionNames[Convert.ToInt16(row["Condition_ID"])],
+                                    new SimpleConditon(Convert.ToString(row["Operand_1_ID"]),
+                                        conditionNames[Convert.ToInt16(row["Operand_1_ID"])]),
+                                    operations[Convert.ToInt16(row["Operation_ID"])],
+                                    new SimpleConditon(Convert.ToString(row["Operand_1_ID"]),
+                                        conditionNames[Convert.ToInt16(row["Operand_1_ID"])])))
+                        .ToList();
+                }
+                else
+                {
+                    complexConditions = (from rw in ds.Tables["ConditionComplex"].AsEnumerable()
+                        where
+                            conditionNames.Keys.Contains(Convert.ToInt16(rw["Condition_ID"]))
+                        select rw).Select(
+                            row =>
+                                new ComplexCondition(Convert.ToString(row["Condition_ID"]),
+                                    conditionNames[Convert.ToInt16(row["Condition_ID"])],
+                                    new SimpleConditon(Convert.ToString(row["Operand_1_ID"]),
+                                        conditionNames[Convert.ToInt16(row["Operand_1_ID"])]),
+                                    operations[Convert.ToInt16(row["Operation_ID"])],
+                                    new SimpleConditon(Convert.ToString(row["Operand_1_ID"]),
+                                        conditionNames[Convert.ToInt16(row["Operand_1_ID"])])))
+                        .ToList();
+                }
             }
-            else
+            catch
             {
-                complexConditions = (from rw in ds.Tables["ConditionComplex"].AsEnumerable()
-                    where
-                        conditionNames.Keys.Contains(Convert.ToInt16(rw["Condition_ID"]))
-                    select rw).Select(
-                        row =>
-                            new ComplexCondition(Convert.ToString(row["Condition_ID"]),
-                                conditionNames[Convert.ToInt16(row["Condition_ID"])],
-                                new SimpleConditon(Convert.ToString(row["Operand_1_ID"]),
-                                    conditionNames[Convert.ToInt16(row["Operand_1_ID"])]),
-                                operations[Convert.ToInt16(row["Operation_ID"])],
-                                new SimpleConditon(Convert.ToString(row["Operand_1_ID"]),
-                                    conditionNames[Convert.ToInt16(row["Operand_1_ID"])])))
-                    .ToList();
+                complexConditions = new List<ComplexCondition>();
             }
             complexConditions.Sort((x, y) => String.Compare(x.ToString(true), y.ToString(true)));
             return complexConditions;
@@ -182,6 +189,7 @@ namespace EventTreeEditor
 
         private void cb_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (cb.SelectedItem == null) return;
             tv.Nodes.Clear();
             int id = Convert.ToInt16(cb.SelectedItem.ToString().Split('.')[0]);
             tv.Nodes.Add(SQLManager.PopulateTreeNode(ds, id, true));
@@ -381,6 +389,8 @@ namespace EventTreeEditor
             newExrInGr["Exercise_ID"] = newExer["ID"];
             ds.Tables["ExerciseGroupping"].Rows.Add(newExrInGr);
 
+            //ds.AcceptChanges();
+
             CloseForm(sender, e);
         }
 
@@ -565,6 +575,8 @@ namespace EventTreeEditor
             newExerError["Condition_ID"] = (ConditionCB.SelectedItem as SimpleConditon).ID;
             ds.Tables["ExerciseErrors"].Rows.Add(newExerError);
 
+            //ds.AcceptChanges();
+
             CloseForm(sender, e);
         }
 
@@ -573,6 +585,9 @@ namespace EventTreeEditor
             CurGn.Label = tb.Text;
             var rw = ds.Tables["Conditions"].Select("ID=" + CurGn.ID).FirstOrDefault();
             if (rw != null) rw["Comment"] = tb.Text;
+
+            //ds.AcceptChanges();
+
             CloseForm(sender, e);
             //ds.Tables["Conditions"].R
         }

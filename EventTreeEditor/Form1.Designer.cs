@@ -53,6 +53,7 @@
             this.simpleConditionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addSubtreeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editLabelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.makeUniqueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cmsTV = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -293,9 +294,10 @@
             this.editPropetiesToolStripMenuItem,
             this.editPropertiesToolStripMenuItem,
             this.editLabelToolStripMenuItem,
+            this.makeUniqueToolStripMenuItem,
             this.deleteToolStripMenuItem});
             this.cms.Name = "contextMenuStrip1";
-            this.cms.Size = new System.Drawing.Size(254, 164);
+            this.cms.Size = new System.Drawing.Size(254, 248);
             this.cms.Opening += new System.ComponentModel.CancelEventHandler(this.cms_Opening);
             // 
             // editPropetiesToolStripMenuItem
@@ -344,6 +346,13 @@
             this.editLabelToolStripMenuItem.Text = "Edit label";
             this.editLabelToolStripMenuItem.Click += new System.EventHandler(this.editLabelToolStripMenuItem_Click);
             // 
+            // makeUniqueToolStripMenuItem
+            // 
+            this.makeUniqueToolStripMenuItem.Name = "makeUniqueToolStripMenuItem";
+            this.makeUniqueToolStripMenuItem.Size = new System.Drawing.Size(253, 40);
+            this.makeUniqueToolStripMenuItem.Text = "Make unique";
+            this.makeUniqueToolStripMenuItem.Click += new System.EventHandler(this.makeUniqueToolStripMenuItem_Click);
+            // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
@@ -356,12 +365,12 @@
             this.cmsTV.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1});
             this.cmsTV.Name = "cmsTV";
-            this.cmsTV.Size = new System.Drawing.Size(244, 92);
+            this.cmsTV.Size = new System.Drawing.Size(76, 26);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(243, 22);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(75, 22);
             // 
             // Form1
             // 
@@ -432,6 +441,7 @@
         private System.Windows.Forms.ToolStripMenuItem addSubtreeToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip cmsTV;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem makeUniqueToolStripMenuItem;
 
     }
 }

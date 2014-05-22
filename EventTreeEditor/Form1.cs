@@ -398,16 +398,20 @@ namespace EventTreeEditor
             //tree_panel.Width = Width - main_panel.Width - 27;
             //mainField.Width = main_panel.Width - 5;
             //mainField.Height = main_panel.Height - 10;
+
             splitContainer1.Width = Width - 19;
             splitContainer1.Top = toolStrip1.Height;
             splitContainer1.Height = Height - toolStrip1.Height - 40;
             mainTV.Top = ExerciseGroupsBox.Top + ExerciseGroupsBox.Height + 2;
             mainTV.Left = ExerciseGroupsBox.Left;
+
             //mainField.Top = main_panel.Top;
             //mainField.Left = main_panel.Left;
             
             //treeView2.Width = splitContainer2.Width;
+
             mainTV.Height = splitContainer2.Height - 44;
+
             //splitContainer1.SplitterDistance = Convert.ToInt32(Width*0.8);
 
             //if (mainField.Image != null)
@@ -490,7 +494,7 @@ namespace EventTreeEditor
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (ObjArr[Glob_Ind_Tmp].IsRoot && ObjArr[Glob_Ind_Tmp].ID == GetCurExrID())
+            if (/*ObjArr[Glob_Ind_Tmp].IsRoot && */ObjArr[Glob_Ind_Tmp].ID == GetCurExrID())
             {
                 MessageBox.Show("Can't remove exercise root node", "Error", MessageBoxButtons.OK,
                     MessageBoxIcon.Exclamation);
@@ -526,8 +530,16 @@ namespace EventTreeEditor
         private void toolStripButton2_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
+            SQLManager.UploadSqlServer(dataSet.Tables["Exercises"]);
             SQLManager.UploadSqlServer(dataSet.Tables["Conditions"]);
-            SQLManager.UploadSqlServer(dataSet.Tables["ConditionComplex"]);
+            SQLManager.UploadSqlServer(dataSet.Tables["Errors"]);
+            SQLManager.UploadSqlServer(dataSet.Tables["ExerciseErrors"]);       
+            foreach (var table in dataSet.Tables)
+            {
+                SQLManager.UploadSqlServer((DataTable)table);
+            }
+            //SQLManager.UploadSqlServer(dataSet.Tables["Conditions"]);
+            //SQLManager.UploadSqlServer(dataSet.Tables["ConditionComplex"]);
             //Cursor.Current = Cursors.Hand;
             //this.Cursor = Cursors.Hand;
             //IsDragging = true;
@@ -558,7 +570,7 @@ namespace EventTreeEditor
             {
                 ExerciseGroupsBox.Items.Add(row["ID"] + ". " + row["Description"]);
             }
-            ExerciseGroupsBox.SelectedItem = ExerciseGroupsBox.Items[0];
+            //ExerciseGroupsBox.SelectedItem = ExerciseGroupsBox.Items[0];
         }
 
         private void CategoriesBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -641,7 +653,7 @@ namespace EventTreeEditor
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (e.Node.Level == 0 || e.Node.Index % 2 == 1) return;
-            var name = e.Node.Text.Split(new[] { '.', ' ' }, 2, StringSplitOptions.RemoveEmptyEntries)[1];
+            var name = e.Node.Text.Split(new[] { '.', ' ' }, 2/*, StringSplitOptions.RemoveEmptyEntries*/)[1];
             var id = e.Node.Text.Split('.')[0];
             var prop = new Dictionary<string, string>
             {
@@ -692,6 +704,7 @@ namespace EventTreeEditor
         private void cms_Opening(object sender, CancelEventArgs e)
         {
             cms.Items[0].Visible = ObjArr[Glob_Ind_Tmp].HasChildren;
+            cms.Items[2].Visible = ObjArr[Glob_Ind_Tmp].ID != null;
             cms.Items[1].Visible = !ObjArr[Glob_Ind_Tmp].IsRoot;
         }
 
@@ -775,9 +788,9 @@ namespace EventTreeEditor
 
         private void saveCurExrLocal_Click(object sender, EventArgs e)
         {
-            if (Utils.GraphNodeArrayCorrect(ObjArr))
+            if (Utils.GraphNodeArrayCorrect(ObjArr) && mainTV.SelectedNode != null)
             {
-                Utils.GraphNodeArrayToDataSet(ObjArr, dataSet);
+                Utils.GraphNodeArrayToDataSet(ObjArr, mainTV.SelectedNode.Text.Split('.')[0], dataSet);
             }
             else
             {
@@ -829,7 +842,7 @@ namespace EventTreeEditor
                 rw.Delete();
             }
             if (rw2 != null) rw2.Delete();
-            dataSet.AcceptChanges();
+            //dataSet.AcceptChanges();
             ExerciseGroupsBox_SelectedIndexChanged(null, null);
         }
 
@@ -844,7 +857,7 @@ namespace EventTreeEditor
             {
                 row.Delete();
             }*/
-            dataSet.AcceptChanges();
+            //dataSet.AcceptChanges();
             ExerciseGroupsBox_SelectedIndexChanged(null, null);
         }
 
@@ -872,6 +885,17 @@ namespace EventTreeEditor
                 cmsTV.Show(mainTV, e.Location);
             }
             
+        }
+
+        private void makeUniqueToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var rw = dataSet.Tables["Conditions"].NewRow();
+            rw[1] = 0;
+            rw["Comment"] = ObjArr[Glob_Ind_Tmp].Label ?? "";
+            dataSet.Tables["Conditions"].Rows.Add(rw);
+            //dataSet.AcceptChanges();
+            ObjArr[Glob_Ind_Tmp].ID = Convert.ToString(rw["ID"]);
+            ReDarawScene(mainField);
         }
 
     }

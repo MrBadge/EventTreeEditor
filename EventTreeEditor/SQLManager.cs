@@ -18,9 +18,8 @@ namespace EventTreeEditor
         //private static SqlDataReader reader;
         //private const string GetTable = "SELECT * FROM @table";
         //private static readonly SqlCommand GetCategories = new SqlCommand("SELECT * FROM dbo.Categories");
-        private static readonly SqlCommand GetExrGroups =
-            new SqlCommand(
-                "SELECT * FROM dbo.ExerciseGroups  WHERE FinishCondition_ID != '' AND StartCondition_ID != ''");
+        private const string GetExrGroups = "SELECT * FROM {0} WHERE FinishCondition_ID != '' AND StartCondition_ID != ''";
+
         /*private static readonly SqlCommand GetExrGroupping = new SqlCommand("SELECT * FROM dbo.ExerciseGroupping");
         private static readonly SqlCommand GetExr = new SqlCommand("SELECT * FROM dbo.Exercises");
         private static readonly SqlCommand GetConditions = new SqlCommand("SELECT ID, Comment FROM dbo.Conditions");
@@ -72,15 +71,16 @@ namespace EventTreeEditor
                     new SqlConnection(conn_string);
                 connection.Open();
 
-                dataSet.Tables.Add(GetDataTable("Categories"));
-                dataSet.Tables.Add(GetDataTable("ExerciseGroups", GetExrGroups));
-                dataSet.Tables.Add(GetDataTable("ExerciseGroupping"));
-                dataSet.Tables.Add(GetDataTable("Exercises"));
-                dataSet.Tables.Add(GetDataTable("Conditions"));
-                dataSet.Tables.Add(GetDataTable("ConditionComplex"));
-                dataSet.Tables.Add(GetDataTable("ExerciseErrors"));
-                dataSet.Tables.Add(GetDataTable("Errors"));
-                dataSet.Tables.Add(GetDataTable("ConditionOperations"));
+                PopulateDataTable(dataSet, "Categories");
+                PopulateDataTable(dataSet, "Categories");
+                PopulateDataTable(dataSet, "ExerciseGroups", GetExrGroups);
+                PopulateDataTable(dataSet, "ExerciseGroupping");
+                PopulateDataTable(dataSet, "Exercises");
+                PopulateDataTable(dataSet, "Conditions");
+                PopulateDataTable(dataSet, "ConditionComplex");
+                PopulateDataTable(dataSet, "ExerciseErrors");
+                PopulateDataTable(dataSet, "Errors");
+                PopulateDataTable(dataSet, "ConditionOperations");
                     
                 connection.Close();
                 return dataSet;
@@ -359,16 +359,25 @@ namespace EventTreeEditor
 
         private static List<DataRow> GetErrorsID(DataSet ds, int ExrsID)
         {
+            //var dtChanges = ds.Tables["ExerciseErrors"].GetChanges(DataRowState.Deleted);
             var errors =
                 (from row in ds.Tables["ExerciseErrors"].AsEnumerable()
-                 where row.Field<int>("Exercise_ID") == ExrsID
+                 where 
+                row.RowState != DataRowState.Deleted && row.Field<int>("Exercise_ID") == ExrsID
                  select row).ToList<DataRow>();
             return errors;
-        } 
+        }
 
-        private static DataTable GetDataTable(string tablename,  SqlCommand sqlCommand = null)
+        private static void PopulateDataTable(DataSet ds, string tablename, string sqlCommand = "SELECT * FROM {0}")
         {
-            SqlDataReader reader;
+            var da
+                = new SqlDataAdapter(String.Format(sqlCommand, "dbo." + tablename), connection);
+            //DataSet dsPubs = new DataSet("Pubs");
+            da.FillSchema(ds, SchemaType.Source, tablename);
+            da.MissingSchemaAction = MissingSchemaAction.AddWithKey;
+            da.Fill(ds, tablename);
+            
+            /*SqlDataReader reader;
             if (sqlCommand != null)
             {
                 sqlCommand.Connection = connection;
@@ -384,7 +393,7 @@ namespace EventTreeEditor
             dataTable.Load(reader);
             dataTable.TableName = tablename;
             dataTable.PrimaryKey = new DataColumn[] { dataTable.Columns["ID"] };
-            return dataTable;
+            return dataTable;*/
         }
 
         public static void UploadSqlServer(DataTable dt)

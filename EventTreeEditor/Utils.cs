@@ -104,7 +104,7 @@ namespace EventTreeEditor
                     var Left = new GraphNode(root)
                     {
                         Radius = TreeNode.DefCirclRad,
-                        Label = LeftTree.Text.Split(new[] {'.', ' '}, 2, StringSplitOptions.RemoveEmptyEntries)[1],
+                        Label = LeftTree.Text.Split(new[] {'.', ' '}, 2/*, StringSplitOptions.RemoveEmptyEntries*/)[1],
                         ID = LeftTree.Text.Split('.')[0]
                     };
                     root.Left = Left;
@@ -128,7 +128,7 @@ namespace EventTreeEditor
                         Y = 0,
                         Radius = TreeNode.DefCirclRad,
                         Label =
-                            RightTree.Text.Split(new[] {'.', ' '}, 2, StringSplitOptions.RemoveEmptyEntries)[1],
+                            RightTree.Text.Split(new[] {'.', ' '}, 2/*, StringSplitOptions.RemoveEmptyEntries*/)[1],
                         ID = RightTree.Text.Split('.')[0]
                     };
                     root.Right = Right;
@@ -160,9 +160,10 @@ namespace EventTreeEditor
             return true; //CHECK THIS!
         }
 
-        public static void GraphNodeArrayToDataSet(List<GraphNode> arr, DataSet ds)
+        public static void GraphNodeArrayToDataSet(List<GraphNode> arr, string errorId, DataSet ds)
         {
             DataRow rw;
+
             if (arr.Count == 1)
             {
                 rw = ds.Tables["ConditionComplex"].Select("Condition_ID=" + arr[0].ID).FirstOrDefault();
@@ -171,10 +172,17 @@ namespace EventTreeEditor
                     //ds.Tables["ConditionComplex"].Rows.Remove(rw);
                     rw.Delete();
                 }
-                ds.AcceptChanges();
             }
             foreach (var node in arr)
             {
+                if (node.IsRoot)
+                {
+                    rw = ds.Tables["ExerciseErrors"].Select("ID=" + errorId).FirstOrDefault();
+                    if (rw != null)
+                    {
+                        rw["Condition_ID"] = node.ID;
+                    }
+                }
                 if (node.HasChildren)
                 {
                     rw = ds.Tables["ConditionComplex"].Select("Condition_ID=" + node.ID).FirstOrDefault();
@@ -189,9 +197,17 @@ namespace EventTreeEditor
                     rw["Operand_2_ID"] = node.Right != null ? (object)node.Right.ID : DBNull.Value;
                 }
 
-                rw = ds.Tables["Conditions"].Select("ID=" + node.ID).FirstOrDefault() ?? ds.Tables["Conditions"].NewRow();
-                rw["Comment"] = node.Label;
+                rw = ds.Tables["Conditions"].Select("ID=" + node.ID).FirstOrDefault(); // ?? ds.Tables["Conditions"].NewRow();
+                if (rw == null)
+                {
+                    rw = ds.Tables["Conditions"].NewRow();
+                    rw[1] = 0; //?? "Type" gives an error
+                    rw["Comment"] = node.Label;
+                    ds.Tables["Conditions"].Rows.Add(rw);
+                } else
+                    rw["Comment"] = node.Label ?? "";
             }
+            //ds.AcceptChanges();
         }
 
         public static Double LineLength(Point A, Point B)
